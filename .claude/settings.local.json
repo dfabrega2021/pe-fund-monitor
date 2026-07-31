@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(echo \"PID: $!\")",
+      "Bash(curl *)",
+      "WebFetch(domain:localhost)",
+      "Bash(npx tsc *)",
+      "Bash(npx eslint *)",
+      "Bash(yes)"
+    ]
+  }
+}

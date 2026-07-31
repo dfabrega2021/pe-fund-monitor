@@ -1,0 +1,35 @@
+# Project: PE Portfolio Monitoring Platform (Family Office take-home)
+
+You are helping build a prototype internal portfolio monitoring platform for a Family Office.
+Full architecture spec is in `architecture.md` in this repo root — read it before making structural decisions, and keep it updated if we deviate from it.
+
+## Working style (important)
+
+- Build incrementally, one phase at a time. Do NOT scaffold the entire application in one shot.
+- After each phase, stop and summarize what was built so it can be reviewed before moving to the next phase.
+- Prefer simplicity over cleverness. This is a 2-3 day build — avoid speculative abstraction, avoid adding libraries not listed below without asking first.
+- Follow the schema and folder structure in `architecture.md` exactly unless there's a concrete reason to deviate — flag any deviation explicitly rather than silently changing the design.
+
+## Stack (decided, do not re-litigate)
+
+- Next.js 14, App Router, TypeScript
+- Postgres (Neon or Supabase) + Drizzle ORM
+- Vercel Blob (or Supabase Storage) for original PDF storage
+- Claude API (Anthropic SDK) for document classification, extraction, and summary generation — PDFs sent as native document blocks, not parsed via a separate PDF-to-text library
+- Tailwind CSS + Recharts for the dashboard
+- Hosting: Vercel
+- Auth: a single shared password gated via middleware checking an `APP_PASSWORD` env var (or no auth at all for local dev) — do not add a full auth provider
+
+## Build order (follow this sequence, one step per session)
+
+1. Scaffold Next.js project, Tailwind, Drizzle config, connect to Postgres.
+2. Implement the DB schema from `architecture.md` Section 4 as Drizzle schema files, run the initial migration.
+3. Write and run the seed script from `architecture.md` Section 11 (multiple funds, multiple quarters, multi-vehicle fund, portfolio companies, a few validation flags) so the dashboard has data immediately.
+4. Build the dashboard read path first (Firm/Book-Level Overview + Fund Detail page) against the seeded data — no upload/AI yet.
+5. Build the upload flow: batch PDF upload → Claude classification → Claude extraction → validation → review screen → commit.
+6. Build the QoQ comparison engine and AI investment summary generation.
+7. Polish: flags queue, risk/macro panel, package completeness tracker.
+
+## Data model source of truth
+
+Don't invent schema fields ad hoc — `architecture.md` Sections 4 and 5 are the source of truth for the database schema and the AI extraction JSON contract. If something is ambiguous or missing there, ask rather than guessing silently.

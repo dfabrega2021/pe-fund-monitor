@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Next.js build output
+.next/
+*.tsbuildinfo
+
+# Env files - never commit real credentials
+.env
+.env.local
+.env*.local
+
+# OS
+.DS_Store
+
+# Leftover scratch from an earlier build phase - duplicate app/lib/verify
+# dirs, not part of the live app (see CLAUDE.md "Current state").
+phase5a-files/
+
+# Stray empty artifacts from earlier terminal commands
+pe-fund-monitor@0.1.0
+tsx
