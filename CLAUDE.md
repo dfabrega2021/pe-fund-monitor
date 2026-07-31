@@ -157,8 +157,11 @@ doesn't apply here.
 
 ## Remaining work
 
-- Confirm the demo Supabase project is fully set up (likely already done).
-- Deploy to Vercel for the case-study reviewer's demo link.
+- ~~Confirm the demo Supabase project is fully set up~~ - done: real Supabase project
+  configured, schema pushed, seed data loaded.
+- ~~Deploy to Vercel for the case-study reviewer's demo link~~ - done: live at
+  pe-fund-monitor.vercel.app, password-gated via `APP_PASSWORD`, deployed from
+  `github.com/dfabrega2021/pe-fund-monitor` (main branch, auto-deploys on push).
 - `How It Works Memo.md` (project root) is the actual case-study deliverable - keep it in
   sync with any material architecture or scaling-story changes.
 - `/trends` is retired from nav, not deleted (see Current state above). Only bring it back
