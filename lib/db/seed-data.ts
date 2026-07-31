@@ -2,9 +2,15 @@
 // data itself is easy to read/tweak without touching insertion order.
 //
 // Composition rationale:
+// - Quarters below are hardcoded as Q4'23-Q1'25 (6 quarters), but that's not
+//   what actually renders - lib/db/seed.ts shifts every reportYear/reportQuarter
+//   at seed time so the *latest* quarter always lands on "one quarter behind
+//   whenever you run npm run seed" (see computeOffset() there). What matters
+//   here is the quarter *count* and the story arc across them, not the literal
+//   calendar labels - those float forward every time this gets reseeded.
 // - A single fund - "Meridian Capital Partners VII, LP" - fully invented fund,
 //   GP, portfolio companies, and narrative, not modeled on or derived from any
-//   real report. Two vehicles (main + co-invest) across 4 quarters (Q2'24-Q1'25),
+//   real report. Two vehicles (main + co-invest) across 6 quarters,
 //   deliberately built around a set of distinct portfolio-company "archetypes"
 //   (steady compounder, re-rating-then-realization, markdown/reversal, long
 //   at-cost lag, capital-deployment ramp, leverage creep, an aggregate venture
@@ -161,6 +167,34 @@ export const seedFunds: SeedFund[] = [
     ],
     quarters: [
       {
+        reportYear: 2023, reportQuarter: 4, documentType: "valuation_letter",
+        gpCommentaryText:
+          "The Fund continued its initial capital deployment phase during the quarter, closing a new position in " +
+          "Highland Energy III and adding to existing upstream and midstream holdings. All positions remain held " +
+          "at or near cost, consistent with the Fund's early stage.",
+        gpStatedNotableChanges: ["Highland Energy III - initial capital deployed"],
+        macroRiskMentions: ["Commodity price volatility remains a monitored risk across the upstream portfolio."],
+        metrics: [
+          { reportYear: 2023, reportQuarter: 4, vehicle: "main", basis: "gross", nav: 1_113_000_000, calledCapital: 1_050_000_000, distributedCapital: 0, remainingValue: 1_113_000_000, dpi: 0.0, rvpi: 1.06, tvpi: 1.06, irr: 0.07, unfundedCommitment: 2_300_000_000 },
+          { reportYear: 2023, reportQuarter: 4, vehicle: "main", basis: "net", nav: 892_500_000, calledCapital: 892_500_000, distributedCapital: 0, remainingValue: 892_500_000, dpi: 0.0, rvpi: 1.00, tvpi: 1.00, irr: 0.03, unfundedCommitment: 1_955_000_000 },
+          { reportYear: 2023, reportQuarter: 4, vehicle: "co_invest", basis: "net", nav: 173_250_000, calledCapital: 157_500_000, distributedCapital: 0, remainingValue: 173_250_000, dpi: 0.0, rvpi: 1.10, tvpi: 1.10, irr: 0.10, unfundedCommitment: 300_000_000 },
+        ],
+      },
+      {
+        reportYear: 2024, reportQuarter: 1, documentType: "lp_letter",
+        gpCommentaryText:
+          "The Fund continued to deploy capital across its core positions during the quarter. Coastal Midstream " +
+          "Co.'s leverage ticked up modestly as the company funded growth capital expenditures ahead of " +
+          "anticipated EBITDA growth. No valuation events of note occurred this quarter.",
+        gpStatedNotableChanges: ["Coastal Midstream Co. - modest increase in leverage tied to growth capex"],
+        macroRiskMentions: ["Commodity price volatility remains a monitored risk across the upstream portfolio."],
+        metrics: [
+          { reportYear: 2024, reportQuarter: 1, vehicle: "main", basis: "gross", nav: 1_350_000_000, calledCapital: 1_250_000_000, distributedCapital: 0, remainingValue: 1_350_000_000, dpi: 0.0, rvpi: 1.08, tvpi: 1.08, irr: 0.11, unfundedCommitment: 2_050_000_000 },
+          { reportYear: 2024, reportQuarter: 1, vehicle: "main", basis: "net", nav: 1_062_500_000, calledCapital: 1_062_500_000, distributedCapital: 0, remainingValue: 1_062_500_000, dpi: 0.0, rvpi: 1.00, tvpi: 1.00, irr: 0.06, unfundedCommitment: 1_742_500_000 },
+          { reportYear: 2024, reportQuarter: 1, vehicle: "co_invest", basis: "net", nav: 218_500_000, calledCapital: 190_000_000, distributedCapital: 0, remainingValue: 218_500_000, dpi: 0.0, rvpi: 1.15, tvpi: 1.15, irr: 0.14, unfundedCommitment: 280_000_000 },
+        ],
+      },
+      {
         reportYear: 2024, reportQuarter: 2, documentType: "valuation_letter",
         gpCommentaryText:
           "The Fund continued to deploy capital across its upstream and midstream positions during the quarter. " +
@@ -240,6 +274,8 @@ export const seedFunds: SeedFund[] = [
           "Backed an experienced Permian Basin operating team to consolidate high-quality acreage and scale " +
           "production through disciplined drilling and bolt-on M&A.",
         quarters: [
+          { reportYear: 2023, reportQuarter: 4, valuation: 255_000_000, costBasis: 245_000_000, committedCapital: 300_000_000, ownershipPct: 82, grossMoic: 1.04, grossIrr: 0.10, realizedProceeds: null },
+          { reportYear: 2024, reportQuarter: 1, valuation: 280_000_000, costBasis: 260_000_000, committedCapital: 310_000_000, ownershipPct: 82, grossMoic: 1.08, grossIrr: 0.13, realizedProceeds: null },
           { reportYear: 2024, reportQuarter: 2, valuation: 303_000_000, costBasis: 275_000_000, committedCapital: 320_000_000, ownershipPct: 82, grossMoic: 1.10, grossIrr: 0.16, realizedProceeds: null },
           { reportYear: 2024, reportQuarter: 3, valuation: 403_000_000, costBasis: 310_000_000, committedCapital: 320_000_000, ownershipPct: 82, grossMoic: 1.30, grossIrr: 0.20, realizedProceeds: null },
           { reportYear: 2024, reportQuarter: 4, valuation: 504_000_000, costBasis: 315_000_000, committedCapital: 340_000_000, ownershipPct: 82, grossMoic: 1.60, grossIrr: 0.24, realizedProceeds: 12_000_000 },
@@ -254,6 +290,8 @@ export const seedFunds: SeedFund[] = [
           "Invested in contracted power generation assets with long-term offtake agreements, targeting steady " +
           "cash yield with upside from contract re-pricing at expiry.",
         quarters: [
+          { reportYear: 2023, reportQuarter: 4, valuation: 120_000_000, costBasis: 120_000_000, committedCapital: 150_000_000, ownershipPct: 70, grossMoic: null, grossIrr: null },
+          { reportYear: 2024, reportQuarter: 1, valuation: 140_000_000, costBasis: 140_000_000, committedCapital: 160_000_000, ownershipPct: 70, grossMoic: null, grossIrr: null },
           { reportYear: 2024, reportQuarter: 2, valuation: 150_000_000, costBasis: 150_000_000, committedCapital: 175_000_000, ownershipPct: 70, grossMoic: null, grossIrr: null },
           { reportYear: 2024, reportQuarter: 3, valuation: 150_000_000, costBasis: 150_000_000, committedCapital: 175_000_000, ownershipPct: 70, grossMoic: null, grossIrr: null },
           { reportYear: 2024, reportQuarter: 4, valuation: 225_000_000, costBasis: 150_000_000, committedCapital: 175_000_000, ownershipPct: 70, grossMoic: 1.50, grossIrr: 0.19, developments: ["Received a re-valuation this quarter reflecting improved contracted cash flows; gross multiple increased to 1.5x from cost."] },
@@ -268,6 +306,8 @@ export const seedFunds: SeedFund[] = [
           "Provided growth capital to an operating renewable power platform in a regulated market with " +
           "government-backed subsidy support for contracted output.",
         quarters: [
+          { reportYear: 2023, reportQuarter: 4, valuation: 170_000_000, costBasis: 165_000_000, committedCapital: 195_000_000, ownershipPct: 60, grossMoic: 1.03, grossIrr: 0.05 },
+          { reportYear: 2024, reportQuarter: 1, valuation: 195_000_000, costBasis: 185_000_000, committedCapital: 205_000_000, ownershipPct: 60, grossMoic: 1.05, grossIrr: 0.08 },
           { reportYear: 2024, reportQuarter: 2, valuation: 220_000_000, costBasis: 200_000_000, committedCapital: 210_000_000, ownershipPct: 60, grossMoic: 1.10, grossIrr: 0.12 },
           { reportYear: 2024, reportQuarter: 3, valuation: 180_000_000, costBasis: 200_000_000, committedCapital: 210_000_000, ownershipPct: 60, grossMoic: 0.90, grossIrr: 0.04, developments: ["A regulatory review of subsidy eligibility in the company's home market introduced uncertainty; valuation adjusted down pending clarity."] },
           { reportYear: 2024, reportQuarter: 4, valuation: 130_000_000, costBasis: 200_000_000, committedCapital: 210_000_000, ownershipPct: 60, grossMoic: 0.65, grossIrr: -0.09 },
@@ -282,6 +322,8 @@ export const seedFunds: SeedFund[] = [
           "Committed capital to fund a multi-year drilling and infrastructure buildout program on newly " +
           "consolidated acreage, ahead of first material production.",
         quarters: [
+          { reportYear: 2023, reportQuarter: 4, valuation: 90_000_000, costBasis: 90_000_000, committedCapital: 350_000_000, ownershipPct: 75, grossMoic: null, grossIrr: null },
+          { reportYear: 2024, reportQuarter: 1, valuation: 140_000_000, costBasis: 140_000_000, committedCapital: 350_000_000, ownershipPct: 75, grossMoic: null, grossIrr: null },
           { reportYear: 2024, reportQuarter: 2, valuation: 180_000_000, costBasis: 180_000_000, committedCapital: 350_000_000, ownershipPct: 75, grossMoic: null, grossIrr: null },
           { reportYear: 2024, reportQuarter: 3, valuation: 230_000_000, costBasis: 230_000_000, committedCapital: 350_000_000, ownershipPct: 75, grossMoic: null, grossIrr: null },
           { reportYear: 2024, reportQuarter: 4, valuation: 270_000_000, costBasis: 270_000_000, committedCapital: 350_000_000, ownershipPct: 75, grossMoic: null, grossIrr: null },
@@ -296,6 +338,8 @@ export const seedFunds: SeedFund[] = [
           "Backed a roll-up strategy acquiring complementary upstream assets to build scale faster than " +
           "organic development alone would allow.",
         quarters: [
+          { reportYear: 2023, reportQuarter: 4, valuation: 12_000_000, costBasis: 12_000_000, committedCapital: 150_000_000, ownershipPct: 68, grossMoic: null, grossIrr: null, developments: ["Initial capital deployed following the Fund's commitment in August 2023."] },
+          { reportYear: 2024, reportQuarter: 1, valuation: 25_000_000, costBasis: 25_000_000, committedCapital: 150_000_000, ownershipPct: 68, grossMoic: null, grossIrr: null },
           { reportYear: 2024, reportQuarter: 2, valuation: 40_000_000, costBasis: 40_000_000, committedCapital: 150_000_000, ownershipPct: 68, grossMoic: null, grossIrr: null },
           { reportYear: 2024, reportQuarter: 3, valuation: 78_000_000, costBasis: 78_000_000, committedCapital: 150_000_000, ownershipPct: 68, grossMoic: null, grossIrr: null, developments: ["Closed the first of several planned bolt-on acquisitions, roughly doubling invested capital in the position quarter over quarter."] },
           { reportYear: 2024, reportQuarter: 4, valuation: 118_000_000, costBasis: 118_000_000, committedCapital: 150_000_000, ownershipPct: 68, grossMoic: null, grossIrr: null, developments: ["Closed a second bolt-on acquisition; cumulative invested capital has now nearly tripled since Q2 2024."] },
@@ -325,6 +369,8 @@ export const seedFunds: SeedFund[] = [
           "Acquired a controlling stake in contracted midstream gathering and processing infrastructure with " +
           "stable, fee-based cash flows.",
         quarters: [
+          { reportYear: 2023, reportQuarter: 4, valuation: 248_000_000, costBasis: 225_000_000, committedCapital: 230_000_000, ownershipPct: 85, grossMoic: 1.10, grossIrr: 0.12, netDebtToEbitda: 2.5 },
+          { reportYear: 2024, reportQuarter: 1, valuation: 253_000_000, costBasis: 225_000_000, committedCapital: 230_000_000, ownershipPct: 85, grossMoic: 1.12, grossIrr: 0.13, netDebtToEbitda: 2.6, developments: ["Net Debt/EBITDA ticked up modestly to ~2.6x as the company funded growth capital expenditures ahead of anticipated EBITDA growth."] },
           { reportYear: 2024, reportQuarter: 2, valuation: 258_000_000, costBasis: 225_000_000, committedCapital: 230_000_000, ownershipPct: 85, grossMoic: 1.15, grossIrr: 0.14, netDebtToEbitda: 2.8 },
           { reportYear: 2024, reportQuarter: 3, valuation: 261_000_000, costBasis: 225_000_000, committedCapital: 230_000_000, ownershipPct: 85, grossMoic: 1.16, grossIrr: 0.145, netDebtToEbitda: 3.2 },
           { reportYear: 2024, reportQuarter: 4, valuation: 265_000_000, costBasis: 225_000_000, committedCapital: 230_000_000, ownershipPct: 85, grossMoic: 1.18, grossIrr: 0.15, netDebtToEbitda: 3.6, developments: ["Net Debt/EBITDA rose to approximately 3.6x this quarter as trailing distributions to the parent outpaced EBITDA growth; management has outlined a deleveraging plan."] },
@@ -342,6 +388,8 @@ export const seedFunds: SeedFund[] = [
           "A diversified sleeve of early-stage energy-technology investments, sized to provide optional " +
           "upside exposure without concentrating the Fund's core upstream/midstream strategy.",
         quarters: [
+          { reportYear: 2023, reportQuarter: 4, valuation: 64_000_000, costBasis: 80_000_000, ownershipPct: null, grossMoic: 0.80, grossIrr: -0.06 },
+          { reportYear: 2024, reportQuarter: 1, valuation: 66_000_000, costBasis: 82_000_000, ownershipPct: null, grossMoic: 0.80, grossIrr: -0.055 },
           { reportYear: 2024, reportQuarter: 2, valuation: 68_000_000, costBasis: 85_000_000, ownershipPct: null, grossMoic: 0.80, grossIrr: -0.05 },
           { reportYear: 2024, reportQuarter: 3, valuation: 70_000_000, costBasis: 85_000_000, ownershipPct: null, grossMoic: 0.82, grossIrr: -0.04 },
           { reportYear: 2024, reportQuarter: 4, valuation: 74_000_000, costBasis: 85_000_000, ownershipPct: null, grossMoic: 0.87, grossIrr: -0.02 },
@@ -356,6 +404,8 @@ export const seedFunds: SeedFund[] = [
           "Invested in a fee-based natural gas gathering system underpinned by long-term, largely fixed-fee " +
           "contracts with a diversified shipper base.",
         quarters: [
+          { reportYear: 2023, reportQuarter: 4, valuation: 52_000_000, costBasis: 50_000_000, committedCapital: 60_000_000, ownershipPct: 72, grossMoic: 1.04, grossIrr: 0.05 },
+          { reportYear: 2024, reportQuarter: 1, valuation: 58_000_000, costBasis: 55_000_000, committedCapital: 60_000_000, ownershipPct: 72, grossMoic: 1.05, grossIrr: 0.07 },
           { reportYear: 2024, reportQuarter: 2, valuation: 63_000_000, costBasis: 60_000_000, committedCapital: 60_000_000, ownershipPct: 72, grossMoic: 1.05, grossIrr: 0.08 },
           { reportYear: 2024, reportQuarter: 3, valuation: 64_800_000, costBasis: 60_000_000, committedCapital: 60_000_000, ownershipPct: 72, grossMoic: 1.08, grossIrr: 0.09 },
           { reportYear: 2024, reportQuarter: 4, valuation: 66_000_000, costBasis: 60_000_000, committedCapital: 60_000_000, ownershipPct: 72, grossMoic: 1.10, grossIrr: 0.10 },
@@ -370,6 +420,8 @@ export const seedFunds: SeedFund[] = [
           "Backed a low-cost operator with a multi-year development inventory in an established basin, " +
           "prioritizing free cash flow generation over rapid growth.",
         quarters: [
+          { reportYear: 2023, reportQuarter: 4, valuation: 32_000_000, costBasis: 30_000_000, committedCapital: 50_000_000, ownershipPct: 80, grossMoic: 1.07, grossIrr: 0.08 },
+          { reportYear: 2024, reportQuarter: 1, valuation: 41_500_000, costBasis: 38_000_000, committedCapital: 50_000_000, ownershipPct: 80, grossMoic: 1.09, grossIrr: 0.11 },
           { reportYear: 2024, reportQuarter: 2, valuation: 49_500_000, costBasis: 45_000_000, committedCapital: 50_000_000, ownershipPct: 80, grossMoic: 1.10, grossIrr: 0.13 },
           { reportYear: 2024, reportQuarter: 3, valuation: 51_750_000, costBasis: 45_000_000, committedCapital: 50_000_000, ownershipPct: 80, grossMoic: 1.15, grossIrr: 0.15 },
           { reportYear: 2024, reportQuarter: 4, valuation: 54_000_000, costBasis: 45_000_000, committedCapital: 50_000_000, ownershipPct: 80, grossMoic: 1.20, grossIrr: 0.17 },
@@ -410,6 +462,32 @@ export const seedFunds: SeedFund[] = [
       { vehicleName: "Ironwood Credit Partners IV, LP", vehicleType: "main", commitmentAmount: 850_000_000, key: "main" },
     ],
     quarters: [
+      {
+        reportYear: 2023, reportQuarter: 4, documentType: "valuation_letter",
+        gpCommentaryText:
+          "The Fund continued to deploy capital into senior secured and unitranche credit facilities during the " +
+          "quarter, with distributions from existing borrowers continuing on schedule. No credit events of note " +
+          "occurred this quarter.",
+        gpStatedNotableChanges: [],
+        macroRiskMentions: ["Elevated interest rates continue to pressure borrower free cash flow across the portfolio's floating-rate obligations."],
+        metrics: [
+          { reportYear: 2023, reportQuarter: 4, vehicle: "main", basis: "gross", nav: 532_000_000, calledCapital: 560_000_000, distributedCapital: 25_000_000, remainingValue: 532_000_000, dpi: 0.045, rvpi: 0.95, tvpi: 0.995, irr: 0.08, unfundedCommitment: 290_000_000 },
+          { reportYear: 2023, reportQuarter: 4, vehicle: "main", basis: "net", nav: 463_500_000, calledCapital: 515_000_000, distributedCapital: 22_400_000, remainingValue: 463_500_000, dpi: 0.0435, rvpi: 0.90, tvpi: 0.944, irr: 0.065, unfundedCommitment: 335_000_000 },
+        ],
+      },
+      {
+        reportYear: 2024, reportQuarter: 1, documentType: "lp_letter",
+        gpCommentaryText:
+          "The Fund made a further quarterly distribution during the period. Palisade Power's Net Debt/EBITDA " +
+          "ticked up modestly on softer contracted margins, consistent with the position's pricing at closing. " +
+          "No other developments of note occurred this quarter.",
+        gpStatedNotableChanges: ["Palisade Power LLC - modest increase in leverage"],
+        macroRiskMentions: ["Elevated interest rates continue to pressure borrower free cash flow across the portfolio's floating-rate obligations."],
+        metrics: [
+          { reportYear: 2024, reportQuarter: 1, vehicle: "main", basis: "gross", nav: 576_600_000, calledCapital: 620_000_000, distributedCapital: 55_000_000, remainingValue: 576_600_000, dpi: 0.0887, rvpi: 0.93, tvpi: 1.019, irr: 0.085, unfundedCommitment: 230_000_000 },
+          { reportYear: 2024, reportQuarter: 1, vehicle: "main", basis: "net", nav: 501_600_000, calledCapital: 570_000_000, distributedCapital: 49_300_000, remainingValue: 501_600_000, dpi: 0.0865, rvpi: 0.88, tvpi: 0.967, irr: 0.07, unfundedCommitment: 280_000_000 },
+        ],
+      },
       {
         reportYear: 2024, reportQuarter: 2, documentType: "valuation_letter",
         gpCommentaryText:
@@ -485,6 +563,8 @@ export const seedFunds: SeedFund[] = [
           "contracts and a diversified shipper base - underwritten for stable, current-yield-driven returns rather " +
           "than equity-style appreciation.",
         quarters: [
+          { reportYear: 2023, reportQuarter: 4, valuation: 115_000_000, costBasis: 120_000_000, committedCapital: 120_000_000, ownershipPct: null, grossMoic: 1.00, grossIrr: 0.078, netDebtToEbitda: 3.0, realizedProceeds: 800_000 },
+          { reportYear: 2024, reportQuarter: 1, valuation: 117_000_000, costBasis: 120_000_000, committedCapital: 120_000_000, ownershipPct: null, grossMoic: 1.02, grossIrr: 0.082, netDebtToEbitda: 3.0, realizedProceeds: 1_600_000 },
           { reportYear: 2024, reportQuarter: 2, valuation: 118_000_000, costBasis: 120_000_000, committedCapital: 120_000_000, ownershipPct: null, grossMoic: 1.05, grossIrr: 0.085, netDebtToEbitda: 3.0, realizedProceeds: 2_500_000 },
           { reportYear: 2024, reportQuarter: 3, valuation: 119_000_000, costBasis: 120_000_000, committedCapital: 120_000_000, ownershipPct: null, grossMoic: 1.07, grossIrr: 0.088, netDebtToEbitda: 3.0, realizedProceeds: 5_100_000 },
           { reportYear: 2024, reportQuarter: 4, valuation: 120_500_000, costBasis: 120_000_000, committedCapital: 120_000_000, ownershipPct: null, grossMoic: 1.09, grossIrr: 0.09, netDebtToEbitda: 3.0, realizedProceeds: 7_800_000 },
@@ -499,6 +579,8 @@ export const seedFunds: SeedFund[] = [
           "Unitranche loan to a contracted power generation platform; priced to reflect closing leverage already " +
           "above the Fund's internal watchlist threshold.",
         quarters: [
+          { reportYear: 2023, reportQuarter: 4, valuation: 97_000_000, costBasis: 100_000_000, committedCapital: 100_000_000, ownershipPct: null, grossMoic: 1.00, grossIrr: 0.078, netDebtToEbitda: 3.9, realizedProceeds: 600_000 },
+          { reportYear: 2024, reportQuarter: 1, valuation: 96_000_000, costBasis: 100_000_000, committedCapital: 100_000_000, ownershipPct: null, grossMoic: 0.99, grossIrr: 0.074, netDebtToEbitda: 4.05, realizedProceeds: 1_150_000, developments: ["Net Debt/EBITDA increased modestly to ~4.05x on softer contracted margins, consistent with the position's pricing at closing."] },
           { reportYear: 2024, reportQuarter: 2, valuation: 95_000_000, costBasis: 100_000_000, committedCapital: 100_000_000, ownershipPct: null, grossMoic: 0.98, grossIrr: 0.07, netDebtToEbitda: 4.2, realizedProceeds: 1_750_000 },
           { reportYear: 2024, reportQuarter: 3, valuation: 93_000_000, costBasis: 100_000_000, committedCapital: 100_000_000, ownershipPct: null, grossMoic: 0.95, grossIrr: 0.055, netDebtToEbitda: 4.6, realizedProceeds: 3_300_000, developments: ["Net Debt/EBITDA rose to approximately 4.6x this quarter, driven by softer contracted margins; the position remains current on interest but is now on the watchlist."] },
           { reportYear: 2024, reportQuarter: 4, valuation: 90_000_000, costBasis: 100_000_000, committedCapital: 100_000_000, ownershipPct: null, grossMoic: 0.91, grossIrr: 0.03, netDebtToEbitda: 5.0, realizedProceeds: 4_700_000 },
@@ -513,6 +595,8 @@ export const seedFunds: SeedFund[] = [
           "Second-lien loan to an oilfield services provider with a diversified basin footprint, underwritten with " +
           "covenant protections against a cyclical downturn in completions activity.",
         quarters: [
+          { reportYear: 2023, reportQuarter: 4, valuation: 49_500_000, costBasis: 50_000_000, committedCapital: 50_000_000, ownershipPct: null, grossMoic: 0.99, grossIrr: 0.06, netDebtToEbitda: 3.5, realizedProceeds: 300_000 },
+          { reportYear: 2024, reportQuarter: 1, valuation: 49_000_000, costBasis: 50_000_000, committedCapital: 50_000_000, ownershipPct: null, grossMoic: 0.98, grossIrr: 0.05, netDebtToEbitda: 3.65, realizedProceeds: 650_000 },
           { reportYear: 2024, reportQuarter: 2, valuation: 48_000_000, costBasis: 50_000_000, committedCapital: 50_000_000, ownershipPct: null, grossMoic: 0.96, grossIrr: 0.04, netDebtToEbitda: 3.8, realizedProceeds: 1_000_000 },
           { reportYear: 2024, reportQuarter: 3, valuation: 44_000_000, costBasis: 50_000_000, committedCapital: 50_000_000, ownershipPct: null, grossMoic: 0.88, grossIrr: -0.02, netDebtToEbitda: 4.4, realizedProceeds: 1_900_000, developments: ["A slowdown in customer completions activity pressured cash flows; the loan was marked down and Net Debt/EBITDA increased to ~4.4x."] },
           { reportYear: 2024, reportQuarter: 4, valuation: 32_000_000, costBasis: 50_000_000, committedCapital: 50_000_000, ownershipPct: null, grossMoic: 0.64, grossIrr: -0.13, netDebtToEbitda: 5.1, realizedProceeds: 2_700_000, developments: ["Continued weakness in the services segment led to a further markdown this quarter; the company is in discussions with its sponsor regarding a potential capital structure amendment."] },
@@ -527,6 +611,8 @@ export const seedFunds: SeedFund[] = [
           "Senior secured loan to a renewables generation platform with contracted power purchase agreements " +
           "underpinning debt service.",
         quarters: [
+          { reportYear: 2023, reportQuarter: 4, valuation: 141_000_000, costBasis: 150_000_000, committedCapital: 150_000_000, ownershipPct: null, grossMoic: 0.94, grossIrr: 0.065, netDebtToEbitda: 4.7, realizedProceeds: 1_000_000 },
+          { reportYear: 2024, reportQuarter: 1, valuation: 143_000_000, costBasis: 150_000_000, committedCapital: 150_000_000, ownershipPct: null, grossMoic: 0.955, grossIrr: 0.07, netDebtToEbitda: 4.6, realizedProceeds: 1_950_000, developments: ["Continued a gradual de-leveraging trend, with Net Debt/EBITDA declining from ~4.7x to ~4.6x this quarter."] },
           { reportYear: 2024, reportQuarter: 2, valuation: 145_000_000, costBasis: 150_000_000, committedCapital: 150_000_000, ownershipPct: null, grossMoic: 0.97, grossIrr: 0.075, netDebtToEbitda: 4.5, realizedProceeds: 2_900_000 },
           { reportYear: 2024, reportQuarter: 3, valuation: 148_000_000, costBasis: 150_000_000, committedCapital: 150_000_000, ownershipPct: null, grossMoic: 0.99, grossIrr: 0.082, netDebtToEbitda: 4.1, realizedProceeds: 5_900_000, developments: ["Refinanced a portion of subordinated debt at the asset level, lowering Net Debt/EBITDA from ~4.5x to ~4.1x."] },
           { reportYear: 2024, reportQuarter: 4, valuation: 151_000_000, costBasis: 150_000_000, committedCapital: 150_000_000, ownershipPct: null, grossMoic: 1.01, grossIrr: 0.088, netDebtToEbitda: 3.8, realizedProceeds: 9_000_000 },

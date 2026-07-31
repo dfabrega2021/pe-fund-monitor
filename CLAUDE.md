@@ -37,7 +37,9 @@ rather than placeholder.
 
 Pages:
 - Executive Summary (`/`) - consolidated book view only, no by-fund toggle
-  (`components/dashboard/ExecutiveDashboard.tsx`): quarter-tab KPI grid (auto-fit/minmax, not
+  (`components/dashboard/ExecutiveDashboard.tsx`): quarter selector (a dropdown plus prev/next
+  buttons, not a flat row of pill tabs - a tab-per-quarter row stopped being readable once
+  reporting history passed a handful of quarters) driving a KPI grid (auto-fit/minmax, not
   a fixed column count, so a partial last row never leaves a large empty gap - this grid's
   card count has already changed more than once) including Total NAV, Gross/Net MOIC/DPI/IRR
   (Net figures are true bottom-line sums across every vehicle - main + co-invest + parallel -

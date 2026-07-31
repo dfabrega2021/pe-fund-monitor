@@ -93,21 +93,45 @@ export function ExecutiveDashboard({ data }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Quarter tabs */}
-      <div className="flex flex-wrap gap-1.5">
-        {quarters.map((q, i) => (
-          <button
-            key={q.period}
-            onClick={() => setSelected(i)}
-            className={`rounded-full px-3 py-1 text-sm font-medium transition-colors ${
-              i === selected
-                ? "bg-navy text-white"
-                : "bg-surface text-muted hover:bg-navy2 hover:text-white"
-            }`}
-          >
-            {q.period}
+      {/* Quarter selector - a dropdown plus prev/next, not a flat row of pill
+          buttons. A tab-per-quarter row reads fine at 4 quarters and turns
+          into an unreadable wall of buttons well before reporting history
+          reaches a couple of years - this control stays exactly as wide
+          regardless of how many quarters the book accumulates. */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setSelected((s) => Math.max(0, s - 1))}
+          disabled={selected === 0}
+          aria-label="Previous quarter"
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-hairline text-navy transition-colors hover:border-gold hover:text-gold disabled:cursor-not-allowed disabled:opacity-30"
+        >
+          ‹
+        </button>
+        <select
+          value={selected}
+          onChange={(e) => setSelected(Number(e.target.value))}
+          aria-label="Select quarter"
+          className="rounded-md border border-hairline bg-card px-3 py-1.5 text-sm font-medium text-navy"
+        >
+          {quarters.map((q, i) => (
+            <option key={q.period} value={i}>
+              {q.period}
+            </option>
+          ))}
+        </select>
+        <button
+          onClick={() => setSelected((s) => Math.min(quarters.length - 1, s + 1))}
+          disabled={selected === quarters.length - 1}
+          aria-label="Next quarter"
+          className="flex h-8 w-8 items-center justify-center rounded-full border border-hairline text-navy transition-colors hover:border-gold hover:text-gold disabled:cursor-not-allowed disabled:opacity-30"
+        >
+          ›
+        </button>
+        {selected !== quarters.length - 1 && (
+          <button onClick={() => setSelected(quarters.length - 1)} className="text-xs font-medium text-gold hover:underline">
+            Jump to latest
           </button>
-        ))}
+        )}
       </div>
 
       {/* KPI grid - auto-fit/minmax rather than a fixed column count tied to
