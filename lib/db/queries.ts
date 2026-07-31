@@ -1391,10 +1391,10 @@ export async function getFundExecutiveData(fundId: string): Promise<FundExecutiv
         if (
           c.grossMoic != null &&
           priorVal?.grossMoic != null &&
-          // Same bar as checkCompanyValuationChange's MOIC-decline side in
-          // lib/validation/rules.ts, applied symmetrically to gains too -
-          // "notable" means a move big enough to matter, not just whichever
-          // moves ranked highest this quarter regardless of size.
+          // Gated on MOIC_DECLINE_THRESHOLD (lib/validation/rules.ts), applied
+          // symmetrically to gains too - "notable" means a move big enough to
+          // matter, not just whichever moves ranked highest this quarter
+          // regardless of size.
           Math.abs(c.grossMoic - priorVal.grossMoic) >= MOIC_DECLINE_THRESHOLD
         ) {
           notableMovement.push({
@@ -1745,10 +1745,10 @@ export async function getConsolidatedExecutiveData(): Promise<FundExecutiveData>
         if (
           c.grossMoic != null &&
           priorVal?.grossMoic != null &&
-          // Same bar as checkCompanyValuationChange's MOIC-decline side in
-          // lib/validation/rules.ts, applied symmetrically to gains too -
-          // "notable" means a move big enough to matter, not just whichever
-          // moves ranked highest this quarter regardless of size.
+          // Gated on MOIC_DECLINE_THRESHOLD (lib/validation/rules.ts), applied
+          // symmetrically to gains too - "notable" means a move big enough to
+          // matter, not just whichever moves ranked highest this quarter
+          // regardless of size.
           Math.abs(c.grossMoic - priorVal.grossMoic) >= MOIC_DECLINE_THRESHOLD
         ) {
           notableMovement.push({
