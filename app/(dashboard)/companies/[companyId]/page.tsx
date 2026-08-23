@@ -167,7 +167,7 @@ export default async function CompanyDetailPage({ params }: Props) {
           <p className="mb-4 text-sm text-muted">
             Splits Gross MOIC into cash already returned versus the position&rsquo;s current mark.
           </p>
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
               <p className="text-xs text-muted">Realized MOIC</p>
               <p className="text-xl font-semibold tabular-nums text-navy">
@@ -184,13 +184,6 @@ export default async function CompanyDetailPage({ params }: Props) {
                 {formatCurrency(latest?.valuation ?? null)} current mark
                 {latest?.realizedProceeds ? `, net of ${formatCurrency(latest.realizedProceeds)} already distributed` : ""}
               </p>
-            </div>
-            <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
-              <p className="text-xs text-muted">Total MOIC (Gross)</p>
-              <p className="text-xl font-semibold tabular-nums text-navy">
-                {latest?.grossMoic != null ? formatMultiple(latest.grossMoic) : "At Cost"}
-              </p>
-              <p className="text-xs text-muted">As reported</p>
             </div>
           </div>
         </section>
