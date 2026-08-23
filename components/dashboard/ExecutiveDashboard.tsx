@@ -146,7 +146,13 @@ export function ExecutiveDashboard({ data }: Props) {
           hint="Sum of vehicle-level NAV, gross, across all tracked funds"
           vehicleLevel
         />
-        <KpiCard label="Gross MOIC" value={formatMultiple(kpi.grossMoic)} delta={moicDelta(kpi.grossMoic, prior?.grossMoic ?? null)} vehicleLevel />
+        <KpiCard
+          label="Gross MOIC"
+          value={formatMultiple(kpi.grossMoic)}
+          delta={moicDelta(kpi.grossMoic, prior?.grossMoic ?? null)}
+          hint="Dollar-weighted by each vehicle's total called capital, not the family office's own commitment mix"
+          vehicleLevel
+        />
         <KpiCard
           label="Gross DPI"
           value={formatMultiple(kpi.grossDpi)}
@@ -215,40 +221,53 @@ export function ExecutiveDashboard({ data }: Props) {
           label="Unfunded Commitment"
           value={formatCurrency(kpi.unfundedCommitment)}
           deltaObj={currencyDelta(kpi.unfundedCommitment, prior?.unfundedCommitment ?? null)}
+          vehicleLevel
         />
         <KpiCard
           label="Cumulative Distributions"
           value={formatCurrency(kpi.cumulativeDistributions)}
           deltaObj={currencyDelta(kpi.cumulativeDistributions, prior?.cumulativeDistributions ?? null)}
+          vehicleLevel
         />
         <KpiCard
           label="Quarterly Valuation Swing"
           value={kpi.quarterlyValuationSwingPct != null ? `${kpi.quarterlyValuationSwingPct >= 0 ? "+" : ""}${kpi.quarterlyValuationSwingPct.toFixed(1)}%` : "—"}
           hint="Gross basis, adjusted for calls/distributions"
           tone={kpi.quarterlyValuationSwingPct != null ? (kpi.quarterlyValuationSwingPct >= 0 ? "positive" : "negative") : undefined}
+          vehicleLevel
         />
-        <KpiCard label="Total Commitments" value={formatCurrency(kpi.totalCommitments)} hint="Called + unfunded, gross" />
+        <KpiCard
+          label="Total Commitments"
+          value={formatCurrency(kpi.totalCommitments)}
+          hint="Called + unfunded, gross"
+          vehicleLevel
+        />
         <KpiCard
           label="Deployment Ratio"
           value={kpi.deploymentRatioPct != null ? `${kpi.deploymentRatioPct.toFixed(1)}%` : "—"}
           delta={pctPointsDelta(kpi.deploymentRatioPct, prior?.deploymentRatioPct ?? null)}
           hint="Called capital / total commitment"
+          vehicleLevel
         />
         <KpiCard
           label="Manager Concentration"
           value={largestManagerPct != null ? `${largestManagerPct.toFixed(1)}%` : "—"}
           hint={largestManager?.gpName}
           secondary={`Top 5: ${top5ManagerPct.toFixed(1)}%`}
+          vehicleLevel
         />
       </div>
 
       {/* Since-inception charts */}
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
-          <h3 className="mb-1 text-sm font-medium text-navy">
+          <h3 className="mb-1 flex items-center gap-1.5 text-sm font-medium text-navy">
             Gross MOIC / IRR — Since Inception
-            <span className="ml-2 text-xs font-normal text-muted">
+            <span className="text-xs font-normal text-muted">
               ({quarters.length} {quarters.length === 1 ? "quarter" : "quarters"} of reporting history)
+            </span>
+            <span title="Dollar-weighted by each vehicle's total called capital, not the family office's own commitment mix">
+              <VehicleLevelIcon />
             </span>
           </h3>
           {kpi.irrIsApproximate && (
@@ -370,7 +389,12 @@ export function ExecutiveDashboard({ data }: Props) {
       {/* Concentration + at-cost trend, both scoped to the selected quarter */}
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
-          <h3 className="mb-1 text-sm font-medium text-navy">NAV Concentration by Manager — {kpi.period}</h3>
+          <h3 className="mb-1 flex items-center gap-1.5 text-sm font-medium text-navy">
+            NAV Concentration by Manager — {kpi.period}
+            <span title="Weighted by each vehicle's total NAV, not the family office's own dollar exposure per fund">
+              <VehicleLevelIcon />
+            </span>
+          </h3>
           <p className="mb-2 text-xs text-muted">Share of book NAV by GP.</p>
           <ConcentrationDonut
             data={extra.managerConcentration.map((m) => ({ label: m.gpName, value: m.nav, pct: m.pctOfNav }))}
@@ -379,7 +403,12 @@ export function ExecutiveDashboard({ data }: Props) {
         </div>
 
         <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
-          <h3 className="mb-3 text-sm font-medium text-navy">% of NAV Held at Cost</h3>
+          <h3 className="mb-3 flex items-center gap-1.5 text-sm font-medium text-navy">
+            % of NAV Held at Cost
+            <span title="Weighted by each vehicle's total portfolio value, not the family office's own dollar exposure per fund">
+              <VehicleLevelIcon />
+            </span>
+          </h3>
           <p className="mb-2 text-xs text-muted">
             Share of portfolio value still unmarked (Gross MOIC not yet meaningful).
           </p>

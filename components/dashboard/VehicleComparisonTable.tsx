@@ -5,6 +5,28 @@ type Props = {
   kpis: FundKpi[];
 };
 
+// Flags Net-basis columns (fee/carry drag varies by LP class - unlike Gross,
+// which is the same performance figure regardless of who the LP is) and any
+// dollar amount (always the vehicle's total, not one LP's own capital account).
+function VehicleLevelIcon() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      width="12"
+      height="12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      className="ml-1 inline-block shrink-0 align-middle text-muted"
+      aria-hidden="true"
+    >
+      <path d="M8 2 L14 5 L8 8 L2 5 Z" strokeLinejoin="round" />
+      <path d="M2 8 L8 11 L14 8" strokeLinejoin="round" />
+      <path d="M2 11 L8 14 L14 11" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 type VehicleRow = {
   vehicleId: string;
   vehicleName: string;
@@ -42,12 +64,34 @@ export function VehicleComparisonTable({ kpis }: Props) {
           <tr className="border-b border-hairline bg-surface text-left text-xs font-medium uppercase tracking-wide text-muted">
             <th className="px-4 py-3">Vehicle</th>
             <th className="px-4 py-3 text-right">Gross TVPI</th>
-            <th className="px-4 py-3 text-right">Net TVPI</th>
+            <th className="px-4 py-3 text-right">
+              <span title="Net figures are fee-class-dependent - not a specific LP's own capital account">
+                Net TVPI
+                <VehicleLevelIcon />
+              </span>
+            </th>
             <th className="px-4 py-3 text-right">Gross IRR</th>
-            <th className="px-4 py-3 text-right">Net IRR</th>
-            <th className="px-4 py-3 text-right">IRR Spread (bps)</th>
+            <th className="px-4 py-3 text-right">
+              <span title="Net figures are fee-class-dependent - not a specific LP's own capital account">
+                Net IRR
+                <VehicleLevelIcon />
+              </span>
+            </th>
+            <th className="px-4 py-3 text-right">
+              <span title="Derived from Net IRR, which is fee-class-dependent">
+                IRR Spread (bps)
+                <VehicleLevelIcon />
+              </span>
+            </th>
             {hasLeverageData && <th className="px-4 py-3 text-right">Unlevered IRR</th>}
-            {hasLeverageData && <th className="px-4 py-3 text-right">Sub Line Balance</th>}
+            {hasLeverageData && (
+              <th className="px-4 py-3 text-right">
+                <span title="Vehicle-total dollar amount, not one LP's own capital account">
+                  Sub Line Balance
+                  <VehicleLevelIcon />
+                </span>
+              </th>
+            )}
           </tr>
         </thead>
         <tbody className="divide-y divide-hairline">

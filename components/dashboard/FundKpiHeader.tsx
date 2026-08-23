@@ -49,15 +49,15 @@ export function FundKpiHeader({ kpis, latestPeriod, vintageYear }: Props) {
             key={`${kpi.vehicleId}-${kpi.returnBasis}`}
             className="rounded-lg border border-hairline bg-card p-4 shadow-sm"
           >
-            <p className="mb-3 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted">
-              {kpi.label}
-              <span title="Vehicle-level, as reported to every LP — family-office-specific capital account not yet layered in">
-                <VehicleLevelIcon />
-              </span>
-            </p>
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">{kpi.label}</p>
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <div>
-                <p className="text-xs text-muted">NAV</p>
+                <p className="flex items-center gap-1 text-xs text-muted">
+                  NAV
+                  <span title="Vehicle-total dollar amount, not one LP's own capital account">
+                    <VehicleLevelIcon />
+                  </span>
+                </p>
                 <p className="font-semibold tabular-nums">{formatCurrency(kpi.nav)}</p>
                 {kpi.qoqNavChangePct != null && (
                   <p
@@ -71,23 +71,56 @@ export function FundKpiHeader({ kpis, latestPeriod, vintageYear }: Props) {
                 )}
               </div>
               <div>
-                <p className="text-xs text-muted">TVPI</p>
+                <p className="flex items-center gap-1 text-xs text-muted">
+                  TVPI
+                  {kpi.returnBasis === "net" && (
+                    <span title="Fee-class-dependent - varies by LP, not a specific LP's own return">
+                      <VehicleLevelIcon />
+                    </span>
+                  )}
+                </p>
                 <p className="font-semibold tabular-nums">{formatMultiple(kpi.tvpi)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted">DPI</p>
+                <p className="flex items-center gap-1 text-xs text-muted">
+                  DPI
+                  {kpi.returnBasis === "net" && (
+                    <span title="Fee-class-dependent - varies by LP, not a specific LP's own return">
+                      <VehicleLevelIcon />
+                    </span>
+                  )}
+                </p>
                 <p className="tabular-nums">{formatMultiple(kpi.dpi)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted">RVPI</p>
+                <p className="flex items-center gap-1 text-xs text-muted">
+                  RVPI
+                  {kpi.returnBasis === "net" && (
+                    <span title="Fee-class-dependent - varies by LP, not a specific LP's own return">
+                      <VehicleLevelIcon />
+                    </span>
+                  )}
+                </p>
                 <p className="tabular-nums">{formatMultiple(kpi.rvpi)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted">IRR</p>
+                <p className="flex items-center gap-1 text-xs text-muted">
+                  IRR
+                  {kpi.returnBasis === "net" && (
+                    <span title="Fee-class-dependent - varies by LP, not a specific LP's own return">
+                      <VehicleLevelIcon />
+                    </span>
+                  )}
+                </p>
                 <p className="tabular-nums">{formatPercent(kpi.irr)}</p>
               </div>
               <div>
-                <p className="text-xs text-muted">Unfunded</p>
+                <p className="flex items-center gap-1 text-xs text-muted">
+                  Unfunded
+                  <span title="Vehicle-total dollar amount, not one LP's own capital account">
+                    <VehicleLevelIcon />
+                  </span>
+                </p>
                 <p className="tabular-nums">{formatCurrency(kpi.unfundedCommitment)}</p>
               </div>
             </div>
