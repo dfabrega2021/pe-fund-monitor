@@ -71,8 +71,7 @@ export function FundKpiHeader({ kpis, latestPeriod, vintageYear }: Props) {
       </div>
       <p className="mt-3 text-xs text-muted">
         Gross reflects capital called at the fund level, before fees and expenses. Net reflects fees and
-        carry at the vehicle&rsquo;s highest fee class, as reported to all LPs &mdash; not a specific LP&rsquo;s own
-        capital account, which may vary based on individual fee terms.
+        carry at the vehicle&rsquo;s highest fee class, as reported to all LPs.
       </p>
     </div>
   );

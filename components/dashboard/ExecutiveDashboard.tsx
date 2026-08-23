@@ -324,6 +324,57 @@ export function ExecutiveDashboard({ data }: Props) {
         </div>
 
         <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
+          <h3 className="mb-1 text-sm font-medium text-navy">Notable MOIC Movement vs Prior Quarter</h3>
+          <p className="mb-3 text-xs text-muted">Moves of at least {MOIC_DECLINE_THRESHOLD.toFixed(2)}x, top 3.</p>
+          {extra.notableMovement.length === 0 ? (
+            <p className="text-sm text-muted">
+              {selected === 0
+                ? "No prior quarter to compare against."
+                : `No position moved ${MOIC_DECLINE_THRESHOLD.toFixed(2)}x or more this quarter.`}
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {extra.notableMovement.map((m) => {
+                const isPositive = m.moicDelta >= 0;
+                const widthPct = (Math.abs(m.moicDelta) / maxAbsDelta) * 100;
+                return (
+                  <div key={m.companyId} className="flex items-center gap-2 text-sm">
+                    <Link href={`/companies/${m.companyId}`} className="w-40 shrink-0 hover:underline">
+                      <p className="truncate text-navy">{m.companyName}</p>
+                      <p className="truncate text-xs text-muted">{m.fundName}</p>
+                    </Link>
+                    <div className="h-2.5 flex-1 rounded-full bg-surface">
+                      <div
+                        className={`h-2.5 rounded-full ${isPositive ? "bg-positive" : "bg-negative"}`}
+                        style={{ width: `${Math.max(widthPct, 3)}%` }}
+                      />
+                    </div>
+                    <span
+                      className={`w-16 shrink-0 text-right tabular-nums ${isPositive ? "text-positive" : "text-negative"}`}
+                    >
+                      {isPositive ? "+" : ""}
+                      {m.moicDelta.toFixed(2)}x
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Concentration + at-cost trend, both scoped to the selected quarter */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
+          <h3 className="mb-1 text-sm font-medium text-navy">NAV Concentration by Manager — {kpi.period}</h3>
+          <p className="mb-2 text-xs text-muted">Share of book NAV by GP.</p>
+          <ConcentrationDonut
+            data={extra.managerConcentration.map((m) => ({ label: m.gpName, value: m.nav, pct: m.pctOfNav }))}
+            emptyMessage="No fund NAV reported for this quarter."
+          />
+        </div>
+
+        <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
           <h3 className="mb-3 text-sm font-medium text-navy">% of NAV Held at Cost</h3>
           <p className="mb-2 text-xs text-muted">
             Share of portfolio value still unmarked (Gross MOIC not yet meaningful).
@@ -362,57 +413,6 @@ export function ExecutiveDashboard({ data }: Props) {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </div>
-      </div>
-
-      {/* Concentration + notable movement, both scoped to the selected quarter */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
-          <h3 className="mb-1 text-sm font-medium text-navy">NAV Concentration by Manager — {kpi.period}</h3>
-          <p className="mb-2 text-xs text-muted">Share of book NAV by GP.</p>
-          <ConcentrationDonut
-            data={extra.managerConcentration.map((m) => ({ label: m.gpName, value: m.nav, pct: m.pctOfNav }))}
-            emptyMessage="No fund NAV reported for this quarter."
-          />
-        </div>
-
-        <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
-          <h3 className="mb-1 text-sm font-medium text-navy">Notable MOIC Movement vs Prior Quarter</h3>
-          <p className="mb-3 text-xs text-muted">Moves of at least {MOIC_DECLINE_THRESHOLD.toFixed(2)}x, top 3.</p>
-          {extra.notableMovement.length === 0 ? (
-            <p className="text-sm text-muted">
-              {selected === 0
-                ? "No prior quarter to compare against."
-                : `No position moved ${MOIC_DECLINE_THRESHOLD.toFixed(2)}x or more this quarter.`}
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {extra.notableMovement.map((m) => {
-                const isPositive = m.moicDelta >= 0;
-                const widthPct = (Math.abs(m.moicDelta) / maxAbsDelta) * 100;
-                return (
-                  <div key={m.companyId} className="flex items-center gap-2 text-sm">
-                    <Link href={`/companies/${m.companyId}`} className="w-40 shrink-0 hover:underline">
-                      <p className="truncate text-navy">{m.companyName}</p>
-                      <p className="truncate text-xs text-muted">{m.fundName}</p>
-                    </Link>
-                    <div className="h-2.5 flex-1 rounded-full bg-surface">
-                      <div
-                        className={`h-2.5 rounded-full ${isPositive ? "bg-positive" : "bg-negative"}`}
-                        style={{ width: `${Math.max(widthPct, 3)}%` }}
-                      />
-                    </div>
-                    <span
-                      className={`w-16 shrink-0 text-right tabular-nums ${isPositive ? "text-positive" : "text-negative"}`}
-                    >
-                      {isPositive ? "+" : ""}
-                      {m.moicDelta.toFixed(2)}x
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          )}
         </div>
       </div>
 
