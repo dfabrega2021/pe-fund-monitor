@@ -143,7 +143,7 @@ export function ExecutiveDashboard({ data }: Props) {
           label="Total NAV"
           value={formatCurrency(kpi.totalNav)}
           deltaObj={currencyDelta(kpi.totalNav, prior?.totalNav ?? null)}
-          hint="Current portfolio fair value, gross"
+          hint="Sum of vehicle-level NAV, gross, across all tracked funds"
         />
         <KpiCard label="Gross MOIC" value={formatMultiple(kpi.grossMoic)} delta={moicDelta(kpi.grossMoic, prior?.grossMoic ?? null)} />
         <KpiCard
@@ -232,6 +232,11 @@ export function ExecutiveDashboard({ data }: Props) {
           secondary={`Top 5: ${top5ManagerPct.toFixed(1)}%`}
         />
       </div>
+      <p className="text-xs text-muted">
+        All figures above are vehicle-level, as reported to every LP of that vehicle &mdash; not a specific
+        LP&rsquo;s own capital account. A family-office-specific rollup would require each entity&rsquo;s capital
+        account statement, a separate document from the quarterly report this data is extracted from.
+      </p>
 
       {/* Since-inception charts */}
       <div className="grid gap-4 lg:grid-cols-2">
