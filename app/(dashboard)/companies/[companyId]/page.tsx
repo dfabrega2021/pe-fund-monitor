@@ -47,12 +47,6 @@ export default async function CompanyDetailPage({ params }: Props) {
   const grossMoicDelta = multipleDeltaLabel(latest?.grossMoic ?? null, prior?.grossMoic ?? null);
   const hasLeverageData = company.history.some((h) => h.netDebtToEbitda != null);
   const hasRealizedData = latest?.realizedMoic != null || latest?.unrealizedMoic != null;
-  const hasCapitalStructureData =
-    latest?.debtFacilityCapacity != null || latest?.hedgedPct != null;
-  const undrawnCapacity =
-    latest?.debtFacilityCapacity != null && latest?.debtFacilityDrawn != null
-      ? latest.debtFacilityCapacity - latest.debtFacilityDrawn
-      : null;
   const investmentTypeLabel: Record<string, string> = {
     equity: "Equity",
     preferred_equity: "Preferred Equity",
@@ -166,39 +160,6 @@ export default async function CompanyDetailPage({ params }: Props) {
           </div>
         )}
       </section>
-
-      {hasCapitalStructureData && (
-        <section>
-          <h2 className="mb-1 text-lg font-medium text-navy">Capital Structure &amp; Hedging</h2>
-          <p className="mb-4 text-sm text-muted">
-            Opco-level leverage and commodity risk protection. Only shown for positions that disclose it.
-          </p>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {latest?.debtFacilityCapacity != null && (
-              <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
-                <p className="text-xs text-muted">Debt Facility Drawn / Capacity</p>
-                <p className="text-xl font-semibold tabular-nums text-navy">
-                  {formatCurrency(latest.debtFacilityDrawn ?? null)} / {formatCurrency(latest.debtFacilityCapacity)}
-                </p>
-                {undrawnCapacity != null && (
-                  <p className="text-xs text-muted">{formatCurrency(undrawnCapacity)} undrawn headroom</p>
-                )}
-              </div>
-            )}
-            {latest?.hedgedPct != null && (
-              <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
-                <p className="text-xs text-muted">Hedge Coverage</p>
-                <p className="text-xl font-semibold tabular-nums text-navy">{latest.hedgedPct.toFixed(0)}%</p>
-                {latest.hedgeFloorPrice != null && (
-                  <p className="text-xs text-muted">
-                    Floor {latest.hedgeFloorPrice.toFixed(2)} {latest.hedgePriceUnit ?? ""}
-                  </p>
-                )}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
 
       {hasRealizedData && (
         <section>
