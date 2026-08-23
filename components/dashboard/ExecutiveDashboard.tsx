@@ -144,31 +144,36 @@ export function ExecutiveDashboard({ data }: Props) {
           value={formatCurrency(kpi.totalNav)}
           deltaObj={currencyDelta(kpi.totalNav, prior?.totalNav ?? null)}
           hint="Sum of vehicle-level NAV, gross, across all tracked funds"
+          vehicleLevel
         />
-        <KpiCard label="Gross MOIC" value={formatMultiple(kpi.grossMoic)} delta={moicDelta(kpi.grossMoic, prior?.grossMoic ?? null)} />
+        <KpiCard label="Gross MOIC" value={formatMultiple(kpi.grossMoic)} delta={moicDelta(kpi.grossMoic, prior?.grossMoic ?? null)} vehicleLevel />
         <KpiCard
           label="Gross DPI"
           value={formatMultiple(kpi.grossDpi)}
           delta={moicDelta(kpi.grossDpi, prior?.grossDpi ?? null)}
           hint="Realized proceeds / paid-in - the cash-back share of Gross MOIC"
+          vehicleLevel
         />
         <KpiCard
           label="Gross IRR"
           value={formatPercent(kpi.grossIrr)}
           delta={irrDelta(kpi.grossIrr, prior?.grossIrr ?? null)}
           hint={kpi.irrIsApproximate ? "Commitment-weighted avg. across funds, not a true pooled IRR" : undefined}
+          vehicleLevel
         />
         <KpiCard
           label="Net MOIC"
           value={formatMultiple(kpi.netMoicAllVehicles)}
           delta={moicDelta(kpi.netMoicAllVehicles, prior?.netMoicAllVehicles ?? null)}
           hint="Across every vehicle - main + co-invest, not just the main fund"
+          vehicleLevel
         />
         <KpiCard
           label="Net DPI"
           value={formatMultiple(kpi.netDpiAllVehicles)}
           delta={moicDelta(kpi.netDpiAllVehicles, prior?.netDpiAllVehicles ?? null)}
           hint="Realized proceeds / paid-in, across every vehicle - the cash-back share of Net MOIC"
+          vehicleLevel
         />
         <KpiCard
           label="Net IRR"
@@ -179,6 +184,7 @@ export function ExecutiveDashboard({ data }: Props) {
               ? "Commitment-weighted avg. across funds and vehicles, not a true pooled IRR"
               : undefined
           }
+          vehicleLevel
         />
         {kpi.coinvestVehicleName && (
           <>
@@ -187,18 +193,21 @@ export function ExecutiveDashboard({ data }: Props) {
               value={formatMultiple(kpi.netMoicCoinvest)}
               delta={moicDelta(kpi.netMoicCoinvest, prior?.netMoicCoinvest ?? null)}
               vehicle="co_invest"
+              vehicleLevel
             />
             <KpiCard
               label={`Net DPI (${kpi.coinvestVehicleName})`}
               value={formatMultiple(kpi.netDpiCoinvest)}
               delta={moicDelta(kpi.netDpiCoinvest, prior?.netDpiCoinvest ?? null)}
               vehicle="co_invest"
+              vehicleLevel
             />
             <KpiCard
               label={`Net IRR (${kpi.coinvestVehicleName})`}
               value={formatPercent(kpi.netIrrCoinvest)}
               delta={irrDelta(kpi.netIrrCoinvest, prior?.netIrrCoinvest ?? null)}
               vehicle="co_invest"
+              vehicleLevel
             />
           </>
         )}
@@ -489,6 +498,29 @@ export function ExecutiveDashboard({ data }: Props) {
   );
 }
 
+// Small stack/layers glyph flagging figures that are vehicle-level (as reported
+// to every LP of that vehicle) and don't yet have a family-office-specific
+// capital-account layer. Native title attr gives a hover tooltip with no new
+// dependency - explained verbally in the walkthrough, this is just a visual anchor.
+function VehicleLevelIcon() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      width="12"
+      height="12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      className="inline-block shrink-0 align-middle text-muted"
+      aria-hidden="true"
+    >
+      <path d="M8 2 L14 5 L8 8 L2 5 Z" strokeLinejoin="round" />
+      <path d="M2 8 L8 11 L14 8" strokeLinejoin="round" />
+      <path d="M2 11 L8 14 L14 11" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function KpiCard({
   label,
   value,
@@ -498,6 +530,7 @@ function KpiCard({
   secondary,
   tone,
   vehicle,
+  vehicleLevel,
 }: {
   label: string;
   value: string;
@@ -507,6 +540,7 @@ function KpiCard({
   secondary?: string;
   tone?: "positive" | "negative" | "warning";
   vehicle?: "main" | "co_invest";
+  vehicleLevel?: boolean;
 }) {
   return (
     <div className="rounded-lg border border-hairline bg-card p-3 shadow-sm">
@@ -521,7 +555,14 @@ function KpiCard({
           {vehicle === "main" ? "Main Fund" : "Co-Invest"}
         </span>
       )}
-      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">{label}</p>
+      <p className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted">
+        {label}
+        {vehicleLevel && (
+          <span title="Vehicle-level, as reported to every LP — family-office-specific capital account not yet layered in">
+            <VehicleLevelIcon />
+          </span>
+        )}
+      </p>
       <p
         className={`text-lg font-semibold tabular-nums ${
           tone === "positive"

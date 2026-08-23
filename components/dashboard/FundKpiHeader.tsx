@@ -7,6 +7,28 @@ type Props = {
   vintageYear: number;
 };
 
+// Same glyph as the Executive Summary's KpiCard - flags vehicle-level figures
+// (as reported to every LP of that vehicle) that don't yet have a
+// family-office-specific capital-account layer on top of them.
+function VehicleLevelIcon() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      width="12"
+      height="12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      className="inline-block shrink-0 align-middle text-muted"
+      aria-hidden="true"
+    >
+      <path d="M8 2 L14 5 L8 8 L2 5 Z" strokeLinejoin="round" />
+      <path d="M2 8 L8 11 L14 8" strokeLinejoin="round" />
+      <path d="M2 11 L8 14 L14 11" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export function FundKpiHeader({ kpis, latestPeriod, vintageYear }: Props) {
   const currentYear = new Date().getFullYear();
   const monthsSinceVintage = (currentYear - vintageYear) * 12 + 6;
@@ -27,8 +49,11 @@ export function FundKpiHeader({ kpis, latestPeriod, vintageYear }: Props) {
             key={`${kpi.vehicleId}-${kpi.returnBasis}`}
             className="rounded-lg border border-hairline bg-card p-4 shadow-sm"
           >
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">
+            <p className="mb-3 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted">
               {kpi.label}
+              <span title="Vehicle-level, as reported to every LP — family-office-specific capital account not yet layered in">
+                <VehicleLevelIcon />
+              </span>
             </p>
             <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
               <div>
