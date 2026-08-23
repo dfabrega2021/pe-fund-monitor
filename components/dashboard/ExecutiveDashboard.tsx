@@ -150,7 +150,7 @@ export function ExecutiveDashboard({ data }: Props) {
           label="Gross MOIC"
           value={formatMultiple(kpi.grossMoic)}
           delta={moicDelta(kpi.grossMoic, prior?.grossMoic ?? null)}
-          hint="Dollar-weighted by each vehicle's total called capital, not the family office's own commitment mix"
+          hint="Dollar-weighted by each vehicle's total called capital"
           vehicleLevel
         />
         <KpiCard
@@ -266,7 +266,7 @@ export function ExecutiveDashboard({ data }: Props) {
             <span className="text-xs font-normal text-muted">
               ({quarters.length} {quarters.length === 1 ? "quarter" : "quarters"} of reporting history)
             </span>
-            <span title="Dollar-weighted by each vehicle's total called capital, not the family office's own commitment mix">
+            <span title="Dollar-weighted by each vehicle's total called capital">
               <VehicleLevelIcon />
             </span>
           </h3>
@@ -391,7 +391,7 @@ export function ExecutiveDashboard({ data }: Props) {
         <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
           <h3 className="mb-1 flex items-center gap-1.5 text-sm font-medium text-navy">
             NAV Concentration by Manager — {kpi.period}
-            <span title="Weighted by each vehicle's total NAV, not the family office's own dollar exposure per fund">
+            <span title="Weighted by each vehicle's total NAV">
               <VehicleLevelIcon />
             </span>
           </h3>
@@ -405,7 +405,7 @@ export function ExecutiveDashboard({ data }: Props) {
         <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
           <h3 className="mb-3 flex items-center gap-1.5 text-sm font-medium text-navy">
             % of NAV Held at Cost
-            <span title="Weighted by each vehicle's total portfolio value, not the family office's own dollar exposure per fund">
+            <span title="Weighted by each vehicle's total portfolio value">
               <VehicleLevelIcon />
             </span>
           </h3>
@@ -587,7 +587,7 @@ function KpiCard({
       <p className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted">
         {label}
         {vehicleLevel && (
-          <span title="Vehicle-level, as reported to every LP — family-office-specific capital account not yet layered in">
+          <span title="Vehicle-level, as reported to every LP">
             <VehicleLevelIcon />
           </span>
         )}
