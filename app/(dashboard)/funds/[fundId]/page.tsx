@@ -21,28 +21,6 @@ import {
   getFundAllocationVsTarget,
 } from "@/lib/db/queries";
 
-// Same glyph used across the dashboard - flags vehicle-total dollar amounts and
-// net-basis ratios (fee-class-dependent) that don't yet have a family-office-
-// specific capital-account layer on top of them.
-function VehicleLevelIcon() {
-  return (
-    <svg
-      viewBox="0 0 16 16"
-      width="12"
-      height="12"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      className="inline-block shrink-0 align-middle text-muted"
-      aria-hidden="true"
-    >
-      <path d="M8 2 L14 5 L8 8 L2 5 Z" strokeLinejoin="round" />
-      <path d="M2 8 L8 11 L14 8" strokeLinejoin="round" />
-      <path d="M2 11 L8 14 L14 11" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
 type Props = {
   params: Promise<{ fundId: string }>;
 };
@@ -114,33 +92,18 @@ export default async function FundDetailPage({ params }: Props) {
         <h2 className="mb-4 text-lg font-medium text-navy">Trends</h2>
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
-            <p className="mb-3 flex items-center gap-1.5 text-sm font-medium text-navy">
-              NAV over time (main vehicle)
-              <span title="Vehicle-total dollar amount, not the family office's own capital account">
-                <VehicleLevelIcon />
-              </span>
-            </p>
+            <p className="mb-3 text-sm font-medium text-navy">NAV over time (main vehicle)</p>
             <TrendChart data={trendData} metric="nav" />
           </div>
           <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
-            <p className="mb-3 flex items-center gap-1.5 text-sm font-medium text-navy">
-              TVPI over time (main vehicle)
-              <span title="Net line is fee-class-dependent - varies by LP, not a specific LP's own return">
-                <VehicleLevelIcon />
-              </span>
-            </p>
+            <p className="mb-3 text-sm font-medium text-navy">TVPI over time (main vehicle)</p>
             <TrendChart data={trendData} metric="tvpi" />
           </div>
         </div>
       </section>
 
       <section>
-        <h2 className="mb-1 flex items-center gap-1.5 text-lg font-medium text-navy">
-          Fund Life (Cash Flow)
-          <span title="Vehicle-total dollar amounts, net basis - not the family office's own capital account">
-            <VehicleLevelIcon />
-          </span>
-        </h2>
+        <h2 className="mb-1 text-lg font-medium text-navy">Fund Life (Cash Flow)</h2>
         <p className="mb-4 text-sm text-muted">
           Total Value (NAV + Distributed Capital, stacked) vs. Called Capital (gold line), by quarter -
           net, main vehicle. The stack clearing the line is the point TVPI passes 1.0x.
