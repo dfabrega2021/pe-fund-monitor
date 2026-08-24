@@ -115,7 +115,7 @@ export function TrendChart({ data, metric }: Props) {
       <div className="h-64 w-full">
         <ResponsiveContainer width="100%" height="100%">
           {mode === "level" ? (
-            <LineChart data={chartData} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+            <BarChart data={chartData} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis dataKey="period" tick={{ fontSize: 13, fill: "var(--muted)" }} />
               <YAxis
@@ -125,11 +125,11 @@ export function TrendChart({ data, metric }: Props) {
               />
               <Tooltip formatter={(value) => formatter(Number(value))} contentStyle={{ fontSize: 13, borderRadius: 6 }} />
               <Legend wrapperStyle={{ fontSize: 13 }} />
-              <Line type="monotone" dataKey="Gross (main)" stroke="var(--navy)" strokeWidth={2} dot={{ r: 3 }} />
-              <Line type="monotone" dataKey="Net (main)" stroke="var(--positive)" strokeWidth={2} dot={{ r: 3 }} />
-            </LineChart>
+              <Bar dataKey="Gross (main)" fill="var(--navy)" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="Net (main)" fill="var(--positive)" radius={[3, 3, 0, 0]} />
+            </BarChart>
           ) : (
-            <BarChart data={deltaData} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
+            <LineChart data={deltaData} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
               <XAxis dataKey="period" tick={{ fontSize: 13, fill: "var(--muted)" }} />
               <YAxis tick={{ fontSize: 13, fill: "var(--muted)" }} tickFormatter={(v) => `${v.toFixed(0)}%`} />
@@ -138,9 +138,9 @@ export function TrendChart({ data, metric }: Props) {
                 contentStyle={{ fontSize: 13, borderRadius: 6 }}
               />
               <Legend wrapperStyle={{ fontSize: 13 }} />
-              <Bar dataKey="Gross Δ%" fill="var(--navy)" radius={[3, 3, 0, 0]} />
-              <Bar dataKey="Net Δ%" fill="var(--positive)" radius={[3, 3, 0, 0]} />
-            </BarChart>
+              <Line type="monotone" dataKey="Gross Δ%" stroke="var(--navy)" strokeWidth={2} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="Net Δ%" stroke="var(--positive)" strokeWidth={2} dot={{ r: 3 }} />
+            </LineChart>
           )}
         </ResponsiveContainer>
       </div>
