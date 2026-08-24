@@ -70,9 +70,6 @@ export default async function FundDetailPage({ params }: Props) {
 
       <section>
         <h2 className="mb-1 text-lg font-medium text-navy">Gross vs. Net / Vehicle Comparison</h2>
-        <p className="mb-4 text-sm text-muted">
-          Fee/carry drag by vehicle, and subscription-line impact where disclosed - {kpisData.latestPeriod ?? "latest period"}.
-        </p>
         <VehicleComparisonTable kpis={kpisData.kpis} />
       </section>
 

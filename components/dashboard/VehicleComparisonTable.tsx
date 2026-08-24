@@ -104,7 +104,7 @@ export function VehicleComparisonTable({ kpis }: Props) {
         </tbody>
       </table>
       <p className="border-t border-hairline px-4 py-2 text-xs text-muted">
-        IRR Spread = gross IRR minus net IRR, in basis points. Unlevered IRR shown only where disclosed.
+        IRR Spread = gross IRR minus net IRR, in basis points.
       </p>
     </div>
   );
