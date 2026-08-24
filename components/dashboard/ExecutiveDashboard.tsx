@@ -270,11 +270,6 @@ export function ExecutiveDashboard({ data }: Props) {
               <OwnershipScaledIcon />
             </span>
           </h3>
-          {kpi.irrIsApproximate && (
-            <p className="mb-2 text-xs text-muted">
-              Blended across every fund&rsquo;s main vehicle - can mask one strategy underperforming behind another&rsquo;s gains.
-            </p>
-          )}
           <div className="h-64 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={moicIrrSeries} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
