@@ -154,20 +154,6 @@ export function ExecutiveDashboard({ data }: Props) {
           ownershipScaled
         />
         <KpiCard
-          label="Gross DPI"
-          value={formatMultiple(kpi.grossDpi)}
-          delta={moicDelta(kpi.grossDpi, prior?.grossDpi ?? null)}
-          hint="Realized proceeds / paid-in - the cash-back share of Gross MOIC"
-          ownershipScaled
-        />
-        <KpiCard
-          label="Gross IRR"
-          value={formatPercent(kpi.grossIrr)}
-          delta={irrDelta(kpi.grossIrr, prior?.grossIrr ?? null)}
-          hint={kpi.irrIsApproximate ? "Commitment-weighted avg. across funds, not a true pooled IRR" : undefined}
-          ownershipScaled
-        />
-        <KpiCard
           label="Net MOIC"
           value={formatMultiple(kpi.netMoicAllVehicles)}
           delta={moicDelta(kpi.netMoicAllVehicles, prior?.netMoicAllVehicles ?? null)}
@@ -175,10 +161,24 @@ export function ExecutiveDashboard({ data }: Props) {
           ownershipScaled
         />
         <KpiCard
+          label="Gross DPI"
+          value={formatMultiple(kpi.grossDpi)}
+          delta={moicDelta(kpi.grossDpi, prior?.grossDpi ?? null)}
+          hint="Realized proceeds / paid-in - the cash-back share of Gross MOIC"
+          ownershipScaled
+        />
+        <KpiCard
           label="Net DPI"
           value={formatMultiple(kpi.netDpiAllVehicles)}
           delta={moicDelta(kpi.netDpiAllVehicles, prior?.netDpiAllVehicles ?? null)}
           hint="Realized proceeds / paid-in, across every vehicle - the cash-back share of Net MOIC"
+          ownershipScaled
+        />
+        <KpiCard
+          label="Gross IRR"
+          value={formatPercent(kpi.grossIrr)}
+          delta={irrDelta(kpi.grossIrr, prior?.grossIrr ?? null)}
+          hint={kpi.irrIsApproximate ? "Commitment-weighted avg. across funds, not a true pooled IRR" : undefined}
           ownershipScaled
         />
         <KpiCard
