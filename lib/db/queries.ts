@@ -163,6 +163,12 @@ type MetricRow = {
   subscriptionLineBalance: string | null;
   unleveredIrr: string | null;
   uploadedAt: Date;
+  // Vehicle-level total commitment (every LP) vs. the family office's own
+  // commitment to that same vehicle - see schema.ts comment on
+  // fundVehicles.familyOfficeCommitmentAmount. Both null for vehicles created
+  // from a real upload, since the QIR pipeline never populates the latter.
+  vehicleCommitmentAmount: string | null;
+  familyOfficeCommitmentAmount: string | null;
 };
 
 async function getAllMetricsWithVehicles(): Promise<MetricRow[]> {
@@ -186,10 +192,23 @@ async function getAllMetricsWithVehicles(): Promise<MetricRow[]> {
       subscriptionLineBalance: fundMetrics.subscriptionLineBalance,
       unleveredIrr: fundMetrics.unleveredIrr,
       uploadedAt: fundReports.uploadedAt,
+      vehicleCommitmentAmount: fundVehicles.commitmentAmount,
+      familyOfficeCommitmentAmount: fundVehicles.familyOfficeCommitmentAmount,
     })
     .from(fundMetrics)
     .innerJoin(fundVehicles, eq(fundMetrics.vehicleId, fundVehicles.id))
     .innerJoin(fundReports, eq(fundMetrics.reportId, fundReports.id));
+}
+
+// Family office's ownership % of a given vehicle (their own commitment over
+// the vehicle's total commitment across every LP). Null when either figure is
+// missing - e.g. a vehicle created from a real upload, which only ever has
+// the QIR-reported total, never the family office's own commitment.
+function ownershipPct(m: MetricRow): number | null {
+  const fo = parseNum(m.familyOfficeCommitmentAmount);
+  const total = parseNum(m.vehicleCommitmentAmount);
+  if (fo == null || total == null || total === 0) return null;
+  return fo / total;
 }
 
 function getLatestQuarter(metrics: MetricRow[], fundId: string) {
@@ -1530,6 +1549,20 @@ export async function getConsolidatedExecutiveData(): Promise<FundExecutiveData>
   // report in this data model (see seed data: those vehicles only ever carry
   // a "net" row, no separate "gross" line) - there's nothing to sum there.
   const allVehicleMetrics = allMetrics.filter((m) => fundIds.has(m.fundId));
+  // A fund's own portfolio companies are fund-wide facts (a company's
+  // valuation doesn't change per LP), but converting them into the family
+  // office's own exposure - for at-cost share and concentration - means
+  // scaling by the fund's main-vehicle ownership %, same as everything else
+  // in this rollup. One entry per fund, since ownership % is a property of
+  // the vehicle (constant across quarters), not something that varies by
+  // period.
+  const mainOwnershipPctByFundId = new Map<string, number>();
+  for (const m of mainMetrics) {
+    if (!mainOwnershipPctByFundId.has(m.fundId)) {
+      const pct = ownershipPct(m);
+      if (pct != null) mainOwnershipPctByFundId.set(m.fundId, pct);
+    }
+  }
   const gpNameByFundId = new Map(allFunds.map((f) => [f.id, f.gpName]));
   const fundNameByFundId = new Map(allFunds.map((f) => [f.id, f.name]));
 
@@ -1572,31 +1605,65 @@ export async function getConsolidatedExecutiveData(): Promise<FundExecutiveData>
     if (rows.length === 0) return null;
     return rows.reduce((s, m) => s + (parseNum(m[field]) ?? 0), 0);
   }
-  const sumMain = (period: string, basis: "gross" | "net", field: Parameters<typeof sumFromMetrics>[3]) =>
-    sumFromMetrics(mainMetrics, period, basis, field);
-  // True book-wide Net sum, across every vehicle (main + co-invest + parallel),
-  // not just each fund's main vehicle - a fund's co-invest sleeve is real
-  // committed capital with real returns, and excluding it understates the
-  // book's actual bottom-line net position.
-  const sumAllVehicles = (period: string, basis: "gross" | "net", field: Parameters<typeof sumFromMetrics>[3]) =>
-    sumFromMetrics(allVehicleMetrics, period, basis, field);
+  // Same as sumFromMetrics, but each row is scaled by that row's own vehicle's
+  // ownership % (the family office's commitment / the vehicle's total
+  // commitment) before summing. This is what actually fixes the book-level
+  // weighting problem: summing raw vehicle dollars weights the blend by each
+  // vehicle's total size, but summing ownership-scaled dollars weights it by
+  // what the family office actually has at stake in each one. Rows with no
+  // ownership data (real uploads, which never populate
+  // familyOfficeCommitmentAmount) are excluded rather than treated as zero,
+  // so a partially-populated book doesn't silently understate itself.
+  function sumFamilyOfficeFromMetrics(
+    metrics: MetricRow[],
+    period: string,
+    basis: "gross" | "net",
+    field: "nav" | "calledCapital" | "distributedCapital" | "unfundedCommitment"
+  ) {
+    const [year, quarter] = period.split("-").map(Number);
+    const rows = metrics.filter(
+      (m) => m.reportYear === year && m.reportQuarter === quarter && m.returnBasis === basis
+    );
+    const scaled = rows
+      .map((m) => {
+        const pct = ownershipPct(m);
+        const value = parseNum(m[field]);
+        return pct != null && value != null ? value * pct : null;
+      })
+      .filter((v): v is number => v != null);
+    if (scaled.length === 0) return null;
+    return scaled.reduce((s, v) => s + v, 0);
+  }
+  const sumMainFO = (period: string, basis: "gross" | "net", field: Parameters<typeof sumFromMetrics>[3]) =>
+    sumFamilyOfficeFromMetrics(mainMetrics, period, basis, field);
+  const sumAllVehiclesFO = (period: string, basis: "gross" | "net", field: Parameters<typeof sumFromMetrics>[3]) =>
+    sumFamilyOfficeFromMetrics(allVehicleMetrics, period, basis, field);
 
-  function weightedAvgIrrFromMetrics(metrics: MetricRow[], period: string, basis: "gross" | "net") {
+  // Same idea as sumFamilyOfficeFromMetrics: weight each vehicle's IRR by the
+  // family office's own called capital in it, not the vehicle's total called
+  // capital, so a fund we're barely in doesn't swing the blended IRR just
+  // because it's a large fund.
+  function weightedAvgIrrFromMetricsFO(metrics: MetricRow[], period: string, basis: "gross" | "net") {
     const [year, quarter] = period.split("-").map(Number);
     const rows = metrics.filter(
       (m) => m.reportYear === year && m.reportQuarter === quarter && m.returnBasis === basis
     );
     const withWeight = rows
-      .map((m) => ({ irr: parseNum(m.irr), weight: parseNum(m.calledCapital) ?? 0 }))
-      .filter((r): r is { irr: number; weight: number } => r.irr != null);
+      .map((m) => {
+        const pct = ownershipPct(m);
+        const called = parseNum(m.calledCapital);
+        const irr = parseNum(m.irr);
+        return pct != null && called != null && irr != null ? { irr, weight: called * pct } : null;
+      })
+      .filter((r): r is { irr: number; weight: number } => r != null);
     const totalWeight = withWeight.reduce((s, r) => s + r.weight, 0);
     if (withWeight.length === 0 || totalWeight === 0) return null;
     return withWeight.reduce((s, r) => s + r.irr * r.weight, 0) / totalWeight;
   }
   const weightedAvgIrr = (period: string, basis: "gross" | "net") =>
-    weightedAvgIrrFromMetrics(mainMetrics, period, basis);
+    weightedAvgIrrFromMetricsFO(mainMetrics, period, basis);
   const weightedAvgIrrAllVehicles = (period: string, basis: "gross" | "net") =>
-    weightedAvgIrrFromMetrics(allVehicleMetrics, period, basis);
+    weightedAvgIrrFromMetricsFO(allVehicleMetrics, period, basis);
 
   const quarters: ExecutiveQuarterKpis[] = [];
   const extras: ExecutiveQuarterExtra[] = [];
@@ -1605,20 +1672,24 @@ export async function getConsolidatedExecutiveData(): Promise<FundExecutiveData>
     const [year, quarter] = key.split("-").map(Number);
     const priorKey = index > 0 ? periodKeys[index - 1] : null;
 
-    const grossNav = sumMain(key, "gross", "nav");
-    const grossCalled = sumMain(key, "gross", "calledCapital");
-    const grossDistributed = sumMain(key, "gross", "distributedCapital");
-    const grossUnfunded = sumMain(key, "gross", "unfundedCommitment");
-    const netNav = sumMain(key, "net", "nav");
-    const netCalled = sumMain(key, "net", "calledCapital");
-    const netDistributed = sumMain(key, "net", "distributedCapital");
+    // Family-office-weighted: each vehicle's dollars are scaled by our own
+    // commitment share of that vehicle before summing, so a fund we're barely
+    // in doesn't dominate the book-level total just because the vehicle itself
+    // is large. See sumFamilyOfficeFromMetrics above.
+    const grossNav = sumMainFO(key, "gross", "nav");
+    const grossCalled = sumMainFO(key, "gross", "calledCapital");
+    const grossDistributed = sumMainFO(key, "gross", "distributedCapital");
+    const grossUnfunded = sumMainFO(key, "gross", "unfundedCommitment");
+    const netNav = sumMainFO(key, "net", "nav");
+    const netCalled = sumMainFO(key, "net", "calledCapital");
+    const netDistributed = sumMainFO(key, "net", "distributedCapital");
 
     // True book-wide Net, across every vehicle - the figure that actually
     // answers "what's our bottom-line net return across everything we've
     // committed," not just each fund's main vehicle.
-    const netNavAll = sumAllVehicles(key, "net", "nav");
-    const netCalledAll = sumAllVehicles(key, "net", "calledCapital");
-    const netDistributedAll = sumAllVehicles(key, "net", "distributedCapital");
+    const netNavAll = sumAllVehiclesFO(key, "net", "nav");
+    const netCalledAll = sumAllVehiclesFO(key, "net", "calledCapital");
+    const netDistributedAll = sumAllVehiclesFO(key, "net", "distributedCapital");
 
     const grossMoic =
       grossNav != null && grossDistributed != null && grossCalled != null && grossCalled !== 0
@@ -1643,9 +1714,9 @@ export async function getConsolidatedExecutiveData(): Promise<FundExecutiveData>
     const netDpiMain =
       netDistributed != null && netCalled != null && netCalled !== 0 ? netDistributed / netCalled : null;
 
-    const priorGrossNav = priorKey ? sumMain(priorKey, "gross", "nav") : null;
-    const priorGrossCalled = priorKey ? sumMain(priorKey, "gross", "calledCapital") : null;
-    const priorGrossDistributed = priorKey ? sumMain(priorKey, "gross", "distributedCapital") : null;
+    const priorGrossNav = priorKey ? sumMainFO(priorKey, "gross", "nav") : null;
+    const priorGrossCalled = priorKey ? sumMainFO(priorKey, "gross", "calledCapital") : null;
+    const priorGrossDistributed = priorKey ? sumMainFO(priorKey, "gross", "distributedCapital") : null;
     const quarterlyValuationSwingPct =
       grossNav != null &&
       priorGrossNav != null &&
@@ -1659,10 +1730,26 @@ export async function getConsolidatedExecutiveData(): Promise<FundExecutiveData>
           100
         : null;
 
+    // Companies are fund-wide facts (a valuation doesn't change per LP), but
+    // valuation and cost basis are dollar amounts - scaled here by the fund's
+    // main-vehicle ownership % so at-cost share and concentration reflect the
+    // family office's own exposure, not the fund's full position. grossMoic is
+    // a ratio and is left alone. Funds with no ownership data (real uploads)
+    // drop their dollar fields to null rather than silently keeping the
+    // unscaled full-fund number.
     const companyValsThisQuarter = allCompanies
       .map((c) => {
         const v = valuationsByCompany.get(c.id)?.get(key);
-        return v ? { id: c.id, companyName: c.companyName, fundId: c.fundId, ...v } : null;
+        if (!v) return null;
+        const pct = mainOwnershipPctByFundId.get(c.fundId) ?? null;
+        return {
+          id: c.id,
+          companyName: c.companyName,
+          fundId: c.fundId,
+          valuation: pct != null && v.valuation != null ? v.valuation * pct : null,
+          grossMoic: v.grossMoic,
+          costBasis: pct != null && v.costBasis != null ? v.costBasis * pct : null,
+        };
       })
       .filter(
         (
@@ -1708,11 +1795,17 @@ export async function getConsolidatedExecutiveData(): Promise<FundExecutiveData>
     // see the ManagerConcentrationSlice comment above for why. Grouped from
     // each fund's own main-vehicle net NAV for this quarter, not from company
     // valuations, since manager exposure is a fund-level (capital-level)
-    // question, not a position-level one.
+    // question, not a position-level one. Scaled by the family office's own
+    // ownership % of that vehicle - unscaled, this would rank GPs by the size
+    // of their fund rather than by how much of the family office's own money
+    // actually sits with them, which is the whole reason the vehicle-level
+    // version of this chart could point the wrong way.
     const netNavByFundThisQ = new Map<string, number>();
     for (const m of mainMetrics) {
       if (m.reportYear === year && m.reportQuarter === quarter && m.returnBasis === "net") {
-        netNavByFundThisQ.set(m.fundId, (netNavByFundThisQ.get(m.fundId) ?? 0) + (parseNum(m.nav) ?? 0));
+        const pct = mainOwnershipPctByFundId.get(m.fundId);
+        if (pct == null) continue;
+        netNavByFundThisQ.set(m.fundId, (netNavByFundThisQ.get(m.fundId) ?? 0) + (parseNum(m.nav) ?? 0) * pct);
       }
     }
     const navByGp = new Map<string, number>();

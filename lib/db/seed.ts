@@ -98,6 +98,7 @@ async function main() {
           vehicleName: v.vehicleName,
           vehicleType: v.vehicleType,
           commitmentAmount: v.commitmentAmount.toString(),
+          familyOfficeCommitmentAmount: v.familyOfficeCommitmentAmount.toString(),
         })
         .returning();
       vehicleIdByKey[v.key] = vehicle.id;

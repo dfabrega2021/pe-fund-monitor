@@ -89,6 +89,16 @@ export const fundVehicles = pgTable("fund_vehicles", {
   vehicleName: text("vehicle_name").notNull(), // e.g. "Main Fund", "Co-Invest", "Blended"
   vehicleType: vehicleTypeEnum("vehicle_type").notNull(),
   commitmentAmount: numeric("commitment_amount", { precision: 18, scale: 2 }),
+  // The family office's OWN commitment to this specific vehicle - distinct from
+  // commitmentAmount above, which is the vehicle's total across every LP. This
+  // is the one field that doesn't come from the GP's quarterly report (QIR) -
+  // it's the piece a capital account statement would carry instead. Powers the
+  // family-office-specific rollup on the Executive Summary: ownership % =
+  // familyOfficeCommitmentAmount / commitmentAmount, applied to every dollar
+  // figure (NAV, called, distributed) before they're summed across funds, so
+  // the book-level blend is weighted by what we actually have at stake in each
+  // fund rather than by each vehicle's total size.
+  familyOfficeCommitmentAmount: numeric("family_office_commitment_amount", { precision: 18, scale: 2 }),
 });
 
 // [v2] Groups the 2-3 PDFs that make up one fund + quarter reporting close

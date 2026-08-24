@@ -114,6 +114,13 @@ export type SeedVehicle = {
   vehicleName: string;
   vehicleType: "main" | "co_invest" | "parallel";
   commitmentAmount: number;
+  // The family office's own commitment to this vehicle - not something the
+  // GP's QIR reports, this is what a capital account statement would carry.
+  // Deliberately not proportional to vehicle size across the two funds here:
+  // a smaller absolute commitment to a much larger fund, and a larger one to
+  // a much smaller fund, so the family-office-weighted rollup actually looks
+  // different from the vehicle-level one it replaces.
+  familyOfficeCommitmentAmount: number;
   key: "main" | "co_invest";
 };
 
@@ -162,8 +169,8 @@ export const seedFunds: SeedFund[] = [
     commitmentAmount: 3_950_000_000,
     currency: "USD",
     vehicles: [
-      { vehicleName: "Meridian Capital Partners VII, LP", vehicleType: "main", commitmentAmount: 3_357_500_000, key: "main" },
-      { vehicleName: "Meridian Capital Partners VII Co-Invest", vehicleType: "co_invest", commitmentAmount: 592_500_000, key: "co_invest" },
+      { vehicleName: "Meridian Capital Partners VII, LP", vehicleType: "main", commitmentAmount: 3_357_500_000, familyOfficeCommitmentAmount: 5_000_000, key: "main" },
+      { vehicleName: "Meridian Capital Partners VII Co-Invest", vehicleType: "co_invest", commitmentAmount: 592_500_000, familyOfficeCommitmentAmount: 3_000_000, key: "co_invest" },
     ],
     quarters: [
       {
@@ -459,7 +466,7 @@ export const seedFunds: SeedFund[] = [
     commitmentAmount: 850_000_000,
     currency: "USD",
     vehicles: [
-      { vehicleName: "Ironwood Credit Partners IV, LP", vehicleType: "main", commitmentAmount: 850_000_000, key: "main" },
+      { vehicleName: "Ironwood Credit Partners IV, LP", vehicleType: "main", commitmentAmount: 850_000_000, familyOfficeCommitmentAmount: 10_000_000, key: "main" },
     ],
     quarters: [
       {
