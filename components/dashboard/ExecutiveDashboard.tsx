@@ -143,37 +143,43 @@ export function ExecutiveDashboard({ data }: Props) {
           label="Total NAV"
           value={formatCurrency(kpi.totalNav)}
           deltaObj={currencyDelta(kpi.totalNav, prior?.totalNav ?? null)}
-          hint="Family office's own share of NAV, gross, across all tracked funds"
+          hint="NAV, gross, across all tracked funds"
+          ownershipScaled
         />
         <KpiCard
           label="Gross MOIC"
           value={formatMultiple(kpi.grossMoic)}
           delta={moicDelta(kpi.grossMoic, prior?.grossMoic ?? null)}
-          hint="Weighted by the family office's own called capital in each fund"
+          hint="Weighted by called capital in each fund"
+          ownershipScaled
         />
         <KpiCard
           label="Gross DPI"
           value={formatMultiple(kpi.grossDpi)}
           delta={moicDelta(kpi.grossDpi, prior?.grossDpi ?? null)}
           hint="Realized proceeds / paid-in - the cash-back share of Gross MOIC"
+          ownershipScaled
         />
         <KpiCard
           label="Gross IRR"
           value={formatPercent(kpi.grossIrr)}
           delta={irrDelta(kpi.grossIrr, prior?.grossIrr ?? null)}
           hint={kpi.irrIsApproximate ? "Commitment-weighted avg. across funds, not a true pooled IRR" : undefined}
+          ownershipScaled
         />
         <KpiCard
           label="Net MOIC"
           value={formatMultiple(kpi.netMoicAllVehicles)}
           delta={moicDelta(kpi.netMoicAllVehicles, prior?.netMoicAllVehicles ?? null)}
           hint="Across every vehicle - main + co-invest, not just the main fund"
+          ownershipScaled
         />
         <KpiCard
           label="Net DPI"
           value={formatMultiple(kpi.netDpiAllVehicles)}
           delta={moicDelta(kpi.netDpiAllVehicles, prior?.netDpiAllVehicles ?? null)}
           hint="Realized proceeds / paid-in, across every vehicle - the cash-back share of Net MOIC"
+          ownershipScaled
         />
         <KpiCard
           label="Net IRR"
@@ -184,6 +190,7 @@ export function ExecutiveDashboard({ data }: Props) {
               ? "Commitment-weighted avg. across funds and vehicles, not a true pooled IRR"
               : undefined
           }
+          ownershipScaled
         />
         {kpi.coinvestVehicleName && (
           <>
@@ -192,18 +199,21 @@ export function ExecutiveDashboard({ data }: Props) {
               value={formatMultiple(kpi.netMoicCoinvest)}
               delta={moicDelta(kpi.netMoicCoinvest, prior?.netMoicCoinvest ?? null)}
               vehicle="co_invest"
+              ownershipScaled
             />
             <KpiCard
               label={`Net DPI (${kpi.coinvestVehicleName})`}
               value={formatMultiple(kpi.netDpiCoinvest)}
               delta={moicDelta(kpi.netDpiCoinvest, prior?.netDpiCoinvest ?? null)}
               vehicle="co_invest"
+              ownershipScaled
             />
             <KpiCard
               label={`Net IRR (${kpi.coinvestVehicleName})`}
               value={formatPercent(kpi.netIrrCoinvest)}
               delta={irrDelta(kpi.netIrrCoinvest, prior?.netIrrCoinvest ?? null)}
               vehicle="co_invest"
+              ownershipScaled
             />
           </>
         )}
@@ -211,44 +221,53 @@ export function ExecutiveDashboard({ data }: Props) {
           label="Unfunded Commitment"
           value={formatCurrency(kpi.unfundedCommitment)}
           deltaObj={currencyDelta(kpi.unfundedCommitment, prior?.unfundedCommitment ?? null)}
+          ownershipScaled
         />
         <KpiCard
           label="Cumulative Distributions"
           value={formatCurrency(kpi.cumulativeDistributions)}
           deltaObj={currencyDelta(kpi.cumulativeDistributions, prior?.cumulativeDistributions ?? null)}
+          ownershipScaled
         />
         <KpiCard
           label="Quarterly Valuation Swing"
           value={kpi.quarterlyValuationSwingPct != null ? `${kpi.quarterlyValuationSwingPct >= 0 ? "+" : ""}${kpi.quarterlyValuationSwingPct.toFixed(1)}%` : "—"}
           hint="Gross basis, adjusted for calls/distributions"
           tone={kpi.quarterlyValuationSwingPct != null ? (kpi.quarterlyValuationSwingPct >= 0 ? "positive" : "negative") : undefined}
+          ownershipScaled
         />
         <KpiCard
           label="Total Commitments"
           value={formatCurrency(kpi.totalCommitments)}
-          hint="Called + unfunded, gross - family office's own share"
+          hint="Called + unfunded, gross"
+          ownershipScaled
         />
         <KpiCard
           label="Deployment Ratio"
           value={kpi.deploymentRatioPct != null ? `${kpi.deploymentRatioPct.toFixed(1)}%` : "—"}
           delta={pctPointsDelta(kpi.deploymentRatioPct, prior?.deploymentRatioPct ?? null)}
           hint="Called capital / total commitment"
+          ownershipScaled
         />
         <KpiCard
           label="Manager Concentration"
           value={largestManagerPct != null ? `${largestManagerPct.toFixed(1)}%` : "—"}
           hint={largestManager?.gpName}
           secondary={`Top 5: ${top5ManagerPct.toFixed(1)}%`}
+          ownershipScaled
         />
       </div>
 
       {/* Since-inception charts */}
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
-          <h3 className="mb-1 text-sm font-medium text-navy">
+          <h3 className="mb-1 flex items-center gap-1.5 text-sm font-medium text-navy">
             Gross MOIC / IRR — Since Inception
-            <span className="ml-2 text-xs font-normal text-muted">
+            <span className="text-xs font-normal text-muted">
               ({quarters.length} {quarters.length === 1 ? "quarter" : "quarters"} of reporting history)
+            </span>
+            <span title="Scaled by ownership share in each fund, then summed">
+              <OwnershipScaledIcon />
             </span>
           </h3>
           {kpi.irrIsApproximate && (
@@ -370,8 +389,13 @@ export function ExecutiveDashboard({ data }: Props) {
       {/* Concentration + at-cost trend, both scoped to the selected quarter */}
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
-          <h3 className="mb-1 text-sm font-medium text-navy">NAV Concentration by Manager — {kpi.period}</h3>
-          <p className="mb-2 text-xs text-muted">Family office's own NAV exposure, by GP.</p>
+          <h3 className="mb-1 flex items-center gap-1.5 text-sm font-medium text-navy">
+            NAV Concentration by Manager — {kpi.period}
+            <span title="Scaled by ownership share in each fund, then summed">
+              <OwnershipScaledIcon />
+            </span>
+          </h3>
+          <p className="mb-2 text-xs text-muted">Share of NAV by GP.</p>
           <ConcentrationDonut
             data={extra.managerConcentration.map((m) => ({ label: m.gpName, value: m.nav, pct: m.pctOfNav }))}
             emptyMessage="No fund NAV reported for this quarter."
@@ -379,7 +403,12 @@ export function ExecutiveDashboard({ data }: Props) {
         </div>
 
         <div className="rounded-lg border border-hairline bg-card p-4 shadow-sm">
-          <h3 className="mb-3 text-sm font-medium text-navy">% of NAV Held at Cost</h3>
+          <h3 className="mb-3 flex items-center gap-1.5 text-sm font-medium text-navy">
+            % of NAV Held at Cost
+            <span title="Scaled by ownership share in each fund, then summed">
+              <OwnershipScaledIcon />
+            </span>
+          </h3>
           <p className="mb-2 text-xs text-muted">
             Share of portfolio value still unmarked (Gross MOIC not yet meaningful).
           </p>
@@ -498,6 +527,28 @@ export function ExecutiveDashboard({ data }: Props) {
   );
 }
 
+// Small stack/layers glyph marking figures that are ownership-scaled per fund
+// rather than a flat vehicle total. Native title attr gives a hover tooltip
+// with no new dependency.
+function OwnershipScaledIcon() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      width="12"
+      height="12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      className="inline-block shrink-0 align-middle text-muted"
+      aria-hidden="true"
+    >
+      <path d="M8 2 L14 5 L8 8 L2 5 Z" strokeLinejoin="round" />
+      <path d="M2 8 L8 11 L14 8" strokeLinejoin="round" />
+      <path d="M2 11 L8 14 L14 11" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 function KpiCard({
   label,
   value,
@@ -507,6 +558,7 @@ function KpiCard({
   secondary,
   tone,
   vehicle,
+  ownershipScaled,
 }: {
   label: string;
   value: string;
@@ -516,6 +568,7 @@ function KpiCard({
   secondary?: string;
   tone?: "positive" | "negative" | "warning";
   vehicle?: "main" | "co_invest";
+  ownershipScaled?: boolean;
 }) {
   return (
     <div className="rounded-lg border border-hairline bg-card p-3 shadow-sm">
@@ -530,7 +583,14 @@ function KpiCard({
           {vehicle === "main" ? "Main Fund" : "Co-Invest"}
         </span>
       )}
-      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-muted">{label}</p>
+      <p className="mb-1.5 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-muted">
+        {label}
+        {ownershipScaled && (
+          <span title="Scaled by ownership share in each fund, then summed">
+            <OwnershipScaledIcon />
+          </span>
+        )}
+      </p>
       <p
         className={`text-lg font-semibold tabular-nums ${
           tone === "positive"
