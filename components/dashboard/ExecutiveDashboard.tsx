@@ -404,9 +404,6 @@ export function ExecutiveDashboard({ data }: Props) {
               <OwnershipScaledIcon />
             </span>
           </h3>
-          <p className="mb-2 text-xs text-muted">
-            Share of portfolio value still unmarked (Gross MOIC not yet meaningful).
-          </p>
           <div className="h-56 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={atCostSeries} margin={{ top: 8, right: 16, left: 8, bottom: 8 }}>
